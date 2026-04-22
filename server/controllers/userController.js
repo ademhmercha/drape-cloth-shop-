@@ -57,6 +57,30 @@ exports.getUserById = async (req, res, next) => {
   }
 };
 
+// GET /api/users/me/wishlist
+exports.getWishlist = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).populate('wishlist', 'name images price brand category isFeatured colors');
+    res.json(user.wishlist);
+  } catch (err) { next(err); }
+};
+
+// POST /api/users/me/wishlist/:productId
+exports.addToWishlist = async (req, res, next) => {
+  try {
+    await User.findByIdAndUpdate(req.user._id, { $addToSet: { wishlist: req.params.productId } });
+    res.json({ message: 'Added to wishlist' });
+  } catch (err) { next(err); }
+};
+
+// DELETE /api/users/me/wishlist/:productId
+exports.removeFromWishlist = async (req, res, next) => {
+  try {
+    await User.findByIdAndUpdate(req.user._id, { $pull: { wishlist: req.params.productId } });
+    res.json({ message: 'Removed from wishlist' });
+  } catch (err) { next(err); }
+};
+
 // DELETE /api/users/:id (admin)
 exports.deleteUser = async (req, res, next) => {
   try {

@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
 import { useCart } from '../contexts/CartContext';
+import { useWishlist } from '../contexts/WishlistContext';
+import { useAuth } from '../contexts/AuthContext';
 import ProductCard from '../components/ProductCard';
 import SkeletonCard from '../components/SkeletonCard';
 
@@ -11,6 +13,8 @@ const TABS = ['Description', 'Guide des tailles', 'Livraison & Retours'];
 export default function ProductDetail() {
   const { id } = useParams();
   const { addItem, setIsOpen } = useCart();
+  const { toggle, isInWishlist } = useWishlist();
+  const { user } = useAuth();
 
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
@@ -20,6 +24,9 @@ export default function ProductDetail() {
   const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState(0);
+  const [adding, setAdding] = useState(false);
+  const [zoomOpen, setZoomOpen] = useState(false);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -30,9 +37,7 @@ export default function ProductDetail() {
 
     api.get(`/products/${id}`).then(res => {
       setProduct(res.data);
-      // Auto-select first available color
       if (res.data.colors?.length) setSelectedColor(res.data.colors[0].name);
-      // Fetch related products
       return api.get(`/products?category=${res.data.category}&limit=4`);
     }).then(res => {
       setRelated(res.data.products.filter(p => p._id !== id));
@@ -41,24 +46,31 @@ export default function ProductDetail() {
 
   const selectedSizeData = product?.sizes?.find(s => s.size === selectedSize);
   const stockAvailable = selectedSizeData?.stock || 0;
+  const inWishlist = product ? isInWishlist(product._id) : false;
 
   const handleAddToCart = () => {
-    if (!selectedSize) {
-      toast.error('Veuillez choisir une taille');
-      return;
-    }
-    if (!selectedColor) {
-      toast.error('Veuillez choisir une couleur');
-      return;
-    }
+    if (!selectedSize) { toast.error('Veuillez choisir une taille'); return; }
+    if (!selectedColor) { toast.error('Veuillez choisir une couleur'); return; }
     if (quantity > stockAvailable) {
       toast.error(`Stock insuffisant (${stockAvailable} disponible${stockAvailable > 1 ? 's' : ''})`);
       return;
     }
+    setAdding(true);
     addItem(product, selectedSize, selectedColor, quantity);
     toast.success('Ajouté au panier !');
     setIsOpen(true);
+    setTimeout(() => setAdding(false), 700);
   };
+
+  const handleWishlist = async () => {
+    if (!user) { toast.error('Connectez-vous pour ajouter aux favoris'); return; }
+    const wasIn = inWishlist;
+    await toggle(product);
+    toast.success(wasIn ? 'Retiré des favoris' : 'Ajouté aux favoris');
+  };
+
+  const prevImage = () => setMainImage(i => (i - 1 + product.images.length) % product.images.length);
+  const nextImage = () => setMainImage(i => (i + 1) % product.images.length);
 
   if (loading) {
     return (
@@ -104,18 +116,25 @@ export default function ProductDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           {/* LEFT: Image gallery */}
           <div>
-            {/* Main image */}
-            <div className="relative overflow-hidden aspect-[3/4] group bg-gray-100 mb-4">
+            {/* Main image — click to zoom */}
+            <div
+              className="relative overflow-hidden aspect-[3/4] group bg-gray-100 mb-4 cursor-zoom-in"
+              onClick={() => product.images?.[mainImage] && setZoomOpen(true)}
+            >
               {product.images?.[mainImage] ? (
                 <img
                   src={product.images[mainImage]}
                   alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="eager"
                 />
               ) : (
                 <div className="w-full h-full bg-gray-200" />
               )}
+              {/* Zoom hint */}
+              <div className="absolute bottom-3 right-3 bg-charcoal/60 text-cream text-[10px] tracking-widest uppercase px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                Agrandir
+              </div>
             </div>
 
             {/* Thumbnails */}
@@ -126,7 +145,7 @@ export default function ProductDetail() {
                     key={i}
                     onClick={() => setMainImage(i)}
                     className={`flex-none w-16 h-20 overflow-hidden border-2 transition-colors ${
-                      i === mainImage ? 'border-gold' : 'border-transparent'
+                      i === mainImage ? 'border-gold' : 'border-transparent hover:border-charcoal/20'
                     }`}
                   >
                     <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
@@ -169,7 +188,15 @@ export default function ProductDetail() {
             {/* Size selector */}
             {product.sizes?.length > 0 && (
               <div className="mb-8">
-                <p className="text-xs tracking-widest uppercase font-medium mb-3">Taille</p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs tracking-widest uppercase font-medium">Taille</p>
+                  <button
+                    onClick={() => setSizeGuideOpen(true)}
+                    className="text-xs text-charcoal/50 underline underline-offset-2 hover:text-gold transition-colors"
+                  >
+                    Guide des tailles
+                  </button>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {product.sizes.map(s => {
                     const outOfStock = s.stock === 0;
@@ -222,13 +249,34 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            {/* Add to cart */}
-            <button
-              onClick={handleAddToCart}
-              className="btn-gold w-full mb-4 py-4 text-sm"
-            >
-              Ajouter au Panier
-            </button>
+            {/* Add to cart + wishlist */}
+            <div className="flex gap-3 mb-4">
+              <button
+                onClick={handleAddToCart}
+                disabled={adding}
+                className="btn-gold flex-1 py-4 text-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {adding ? (
+                  <>
+                    <Spinner />
+                    Ajout en cours…
+                  </>
+                ) : (
+                  'Ajouter au Panier'
+                )}
+              </button>
+              <button
+                onClick={handleWishlist}
+                className={`w-14 h-14 border flex items-center justify-center transition-all ${
+                  inWishlist
+                    ? 'border-gold bg-gold/10 text-gold'
+                    : 'border-charcoal/20 hover:border-gold hover:text-gold'
+                }`}
+                aria-label={inWishlist ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              >
+                <HeartIcon filled={inWishlist} />
+              </button>
+            </div>
 
             {/* Payment badge */}
             <div className="flex items-center gap-2 justify-center text-xs text-charcoal/50 mb-8">
@@ -256,35 +304,7 @@ export default function ProductDetail() {
 
               <div className="py-6 text-sm text-charcoal/70 leading-relaxed">
                 {activeTab === 0 && <p>{product.description}</p>}
-                {activeTab === 1 && (
-                  <div className="space-y-2">
-                    <p>Consultez le guide des tailles ci-dessous pour trouver votre taille parfaite.</p>
-                    <table className="w-full text-xs border-collapse mt-4">
-                      <thead>
-                        <tr className="border-b border-charcoal/10">
-                          {['Taille', 'Tour de poitrine', 'Tour de taille', 'Tour de hanches'].map(h => (
-                            <th key={h} className="py-2 pr-4 text-left font-medium text-charcoal">{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[
-                          ['XS', '80–84', '60–64', '88–92'],
-                          ['S', '84–88', '64–68', '92–96'],
-                          ['M', '88–92', '68–72', '96–100'],
-                          ['L', '92–96', '72–76', '100–104'],
-                          ['XL', '96–100', '76–80', '104–108']
-                        ].map(row => (
-                          <tr key={row[0]} className="border-b border-charcoal/5">
-                            {row.map((cell, i) => (
-                              <td key={i} className="py-2 pr-4 text-charcoal/70">{cell} {i > 0 ? 'cm' : ''}</td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                {activeTab === 1 && <SizeTable />}
                 {activeTab === 2 && (
                   <div className="space-y-4">
                     <p>📦 <strong>Livraison</strong> — 3 à 5 jours ouvrables dans toute la Tunisie.</p>
@@ -322,6 +342,135 @@ export default function ProductDetail() {
           </section>
         )}
       </div>
+
+      {/* Image zoom lightbox */}
+      {zoomOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+          onClick={() => setZoomOpen(false)}
+        >
+          <button
+            className="absolute top-5 right-5 text-white/70 hover:text-white text-3xl leading-none transition-colors z-10"
+            onClick={() => setZoomOpen(false)}
+            aria-label="Fermer"
+          >
+            ✕
+          </button>
+
+          <img
+            src={product.images[mainImage]}
+            alt={product.name}
+            className="max-h-[90vh] max-w-[90vw] object-contain"
+            onClick={e => e.stopPropagation()}
+          />
+
+          {product.images.length > 1 && (
+            <>
+              <button
+                className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 text-white/70 hover:text-white text-5xl leading-none transition-colors"
+                onClick={e => { e.stopPropagation(); prevImage(); }}
+                aria-label="Image précédente"
+              >
+                ‹
+              </button>
+              <button
+                className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 text-white/70 hover:text-white text-5xl leading-none transition-colors"
+                onClick={e => { e.stopPropagation(); nextImage(); }}
+                aria-label="Image suivante"
+              >
+                ›
+              </button>
+              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
+                {product.images.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={e => { e.stopPropagation(); setMainImage(i); }}
+                    className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                      i === mainImage ? 'bg-gold' : 'bg-white/40 hover:bg-white/70'
+                    }`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Size guide modal */}
+      {sizeGuideOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setSizeGuideOpen(false)} />
+          <div className="relative bg-cream max-w-lg w-full shadow-2xl">
+            <div className="flex items-center justify-between p-6 border-b border-charcoal/10">
+              <h3 className="font-display text-xl">Guide des tailles</h3>
+              <button onClick={() => setSizeGuideOpen(false)} className="text-2xl text-charcoal/50 hover:text-charcoal leading-none">✕</button>
+            </div>
+            <div className="p-6">
+              <p className="text-sm text-charcoal/60 mb-5">Toutes les mesures sont en centimètres.</p>
+              <SizeTable />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+function SizeTable() {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs border-collapse">
+        <thead>
+          <tr className="border-b border-charcoal/10">
+            {['Taille', 'Poitrine', 'Taille', 'Hanches'].map(h => (
+              <th key={h} className="py-2 pr-4 text-left font-medium text-charcoal">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {[
+            ['XS', '80–84', '60–64', '88–92'],
+            ['S',  '84–88', '64–68', '92–96'],
+            ['M',  '88–92', '68–72', '96–100'],
+            ['L',  '92–96', '72–76', '100–104'],
+            ['XL', '96–100','76–80', '104–108'],
+            ['XXL','100–104','80–84','108–112']
+          ].map(row => (
+            <tr key={row[0]} className="border-b border-charcoal/5">
+              {row.map((cell, i) => (
+                <td key={i} className="py-2.5 pr-4 text-charcoal/70">
+                  {cell}{i > 0 ? ' cm' : ''}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function HeartIcon({ filled }) {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill={filled ? '#C9A84C' : 'none'}
+      stroke={filled ? '#C9A84C' : 'currentColor'}
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" strokeLinecap="round" />
+    </svg>
   );
 }

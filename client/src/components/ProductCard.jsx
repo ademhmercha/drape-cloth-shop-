@@ -1,8 +1,26 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { useWishlist } from '../contexts/WishlistContext';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ProductCard({ product }) {
   const [hovered, setHovered] = useState(false);
+  const { toggle, isInWishlist } = useWishlist();
+  const { user } = useAuth();
+  const inWishlist = isInWishlist(product._id);
+
+  const handleWishlist = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      toast.error('Connectez-vous pour ajouter aux favoris');
+      return;
+    }
+    const wasIn = inWishlist;
+    await toggle(product);
+    toast.success(wasIn ? 'Retiré des favoris' : 'Ajouté aux favoris');
+  };
 
   return (
     <Link
@@ -27,6 +45,17 @@ export default function ProductCard({ product }) {
             <span className="text-gray-400 text-xs">No image</span>
           </div>
         )}
+
+        {/* Wishlist heart button */}
+        <button
+          onClick={handleWishlist}
+          className={`absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center bg-cream/80 backdrop-blur-sm hover:bg-cream transition-all ${
+            inWishlist ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+          }`}
+          aria-label={inWishlist ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+        >
+          <HeartIcon filled={inWishlist} />
+        </button>
 
         {/* Quick View overlay */}
         <div
@@ -73,5 +102,22 @@ export default function ProductCard({ product }) {
         )}
       </div>
     </Link>
+  );
+}
+
+function HeartIcon({ filled }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill={filled ? '#C9A84C' : 'none'}
+      stroke={filled ? '#C9A84C' : '#1C1C1C'}
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
   );
 }

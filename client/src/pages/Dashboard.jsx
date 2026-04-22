@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useWishlist } from '../contexts/WishlistContext';
 import StatusBadge from '../components/StatusBadge';
+import ProductCard from '../components/ProductCard';
 
-const TABS = ['Mes Commandes', 'Mon Profil', 'Notifications'];
+const TABS = ['Mes Commandes', 'Favoris', 'Mon Profil', 'Notifications'];
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState(0);
@@ -15,6 +18,7 @@ export default function Dashboard() {
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [loadingNotifs, setLoadingNotifs] = useState(true);
   const { user, updateUser } = useAuth();
+  const { products: wishlistProducts, count: wishlistCount } = useWishlist();
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -42,17 +46,22 @@ export default function Dashboard() {
         </div>
 
         {/* Tab navigation */}
-        <div className="flex border-b border-charcoal/10 mb-10">
+        <div className="flex overflow-x-auto no-scrollbar border-b border-charcoal/10 mb-10">
           {TABS.map((tab, i) => (
             <button
               key={tab}
               onClick={() => setActiveTab(i)}
-              className={`relative py-3 mr-8 text-xs tracking-widest uppercase font-medium transition-colors ${
+              className={`relative py-3 mr-6 sm:mr-8 text-xs tracking-widest uppercase font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 activeTab === i ? 'text-charcoal' : 'text-charcoal/40 hover:text-charcoal/70'
               }`}
             >
               {tab}
-              {i === 2 && unreadCount > 0 && (
+              {i === 1 && wishlistCount > 0 && (
+                <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 bg-gold/20 text-gold text-[9px] rounded-full">
+                  {wishlistCount}
+                </span>
+              )}
+              {i === 3 && unreadCount > 0 && (
                 <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 bg-gold text-white text-[9px] rounded-full">
                   {unreadCount}
                 </span>
@@ -64,7 +73,7 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Tab 1: Orders */}
+        {/* Tab 0: Orders */}
         {activeTab === 0 && (
           <div>
             {loadingOrders ? (
@@ -72,11 +81,12 @@ export default function Dashboard() {
                 {Array(3).fill(0).map((_, i) => <div key={i} className="h-20 skeleton" />)}
               </div>
             ) : orders.length === 0 ? (
-              <div className="text-center py-16">
-                <p className="font-display text-2xl mb-2">Aucune commande</p>
-                <p className="text-charcoal/50 text-sm mb-8">Votre historique de commandes apparaîtra ici</p>
-                <a href="/shop" className="btn-gold">Découvrir la boutique</a>
-              </div>
+              <EmptyState
+                icon={<BoxIcon />}
+                title="Aucune commande"
+                subtitle="Votre historique de commandes apparaîtra ici"
+                action={<Link to="/shop" className="btn-gold">Découvrir la boutique</Link>}
+              />
             ) : (
               <div className="space-y-4">
                 {orders.map(order => (
@@ -87,9 +97,7 @@ export default function Dashboard() {
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div>
-                        <p className="font-medium text-sm">
-                          #{order._id.slice(-6).toUpperCase()}
-                        </p>
+                        <p className="font-medium text-sm">#{order._id.slice(-6).toUpperCase()}</p>
                         <p className="text-xs text-charcoal/50 mt-0.5">
                           {new Date(order.createdAt).toLocaleDateString('fr-TN', {
                             day: 'numeric', month: 'long', year: 'numeric'
@@ -111,11 +119,31 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* Tab 1: Wishlist */}
+        {activeTab === 1 && (
+          <div>
+            {wishlistProducts.length === 0 ? (
+              <EmptyState
+                icon={<HeartEmptyIcon />}
+                title="Aucun favori"
+                subtitle="Cliquez sur le cœur d'un produit pour le retrouver ici"
+                action={<Link to="/shop" className="btn-gold">Explorer la boutique</Link>}
+              />
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 sm:gap-6">
+                {wishlistProducts.map(p => (
+                  <ProductCard key={p._id} product={p} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Tab 2: Profile */}
-        {activeTab === 1 && <ProfileTab user={user} updateUser={updateUser} />}
+        {activeTab === 2 && <ProfileTab user={user} updateUser={updateUser} />}
 
         {/* Tab 3: Notifications */}
-        {activeTab === 2 && (
+        {activeTab === 3 && (
           <div>
             {unreadCount > 0 && (
               <div className="flex justify-end mb-4">
@@ -132,7 +160,11 @@ export default function Dashboard() {
                 {Array(5).fill(0).map((_, i) => <div key={i} className="h-16 skeleton" />)}
               </div>
             ) : notifications.length === 0 ? (
-              <p className="text-center text-charcoal/50 py-12">Aucune notification</p>
+              <EmptyState
+                icon={<BellEmptyIcon />}
+                title="Aucune notification"
+                subtitle="Vos notifications apparaîtront ici"
+              />
             ) : (
               <div className="space-y-2">
                 {notifications.map(n => (
@@ -166,6 +198,17 @@ export default function Dashboard() {
       {selectedOrder && (
         <OrderModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
       )}
+    </div>
+  );
+}
+
+function EmptyState({ icon, title, subtitle, action }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="text-charcoal/20 mb-5">{icon}</div>
+      <p className="font-display text-xl mb-2">{title}</p>
+      <p className="text-sm text-charcoal/50 mb-8 max-w-xs">{subtitle}</p>
+      {action}
     </div>
   );
 }
@@ -238,8 +281,13 @@ function ProfileTab({ user, updateUser }) {
         </div>
       </div>
 
-      <button type="submit" disabled={saving} className="btn-gold w-full py-3.5 disabled:opacity-50">
-        {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+      <button type="submit" disabled={saving} className="btn-gold w-full py-3.5 flex items-center justify-center gap-2 disabled:opacity-50">
+        {saving ? (
+          <>
+            <Spinner />
+            Enregistrement…
+          </>
+        ) : 'Enregistrer les modifications'}
       </button>
     </form>
   );
@@ -269,14 +317,11 @@ function OrderModal({ order, onClose }) {
         </div>
 
         <div className="p-6 space-y-6">
-          {/* Status timeline */}
           {order.status !== 'cancelled' && (
             <div className="flex items-center">
               {STATUS_STEPS.map((s, i) => (
                 <div key={s} className="flex items-center flex-1 last:flex-none">
-                  <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                    i <= currentStep ? 'bg-gold' : 'bg-charcoal/20'
-                  }`} />
+                  <div className={`w-3 h-3 rounded-full flex-shrink-0 ${i <= currentStep ? 'bg-gold' : 'bg-charcoal/20'}`} />
                   {i < STATUS_STEPS.length - 1 && (
                     <div className={`flex-1 h-0.5 ${i < currentStep ? 'bg-gold' : 'bg-charcoal/10'}`} />
                   )}
@@ -285,7 +330,6 @@ function OrderModal({ order, onClose }) {
             </div>
           )}
 
-          {/* Items */}
           <div>
             <h4 className="text-xs tracking-widest uppercase font-medium mb-3">Articles</h4>
             <div className="space-y-3">
@@ -304,13 +348,11 @@ function OrderModal({ order, onClose }) {
             </div>
           </div>
 
-          {/* Total */}
           <div className="border-t border-charcoal/10 pt-4 flex justify-between">
             <span className="font-medium">Total</span>
             <span className="font-display text-xl">{order.totalAmount.toFixed(2)} DT</span>
           </div>
 
-          {/* Shipping address */}
           <div>
             <h4 className="text-xs tracking-widest uppercase font-medium mb-2">Adresse de livraison</h4>
             <p className="text-sm text-charcoal/70">
@@ -319,7 +361,6 @@ function OrderModal({ order, onClose }) {
             </p>
           </div>
 
-          {/* Admin note */}
           {order.adminNote && (
             <div className="bg-gold/10 border border-gold/20 p-4">
               <p className="text-xs tracking-widest uppercase font-medium mb-1 text-gold">Note</p>
@@ -329,5 +370,40 @@ function OrderModal({ order, onClose }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function BoxIcon() {
+  return (
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+      <line x1="12" y1="22.08" x2="12" y2="12" />
+    </svg>
+  );
+}
+
+function HeartEmptyIcon() {
+  return (
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
+
+function BellEmptyIcon() {
+  return (
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
   );
 }

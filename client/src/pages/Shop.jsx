@@ -181,9 +181,14 @@ export default function Shop() {
                 ? Array(9).fill(0).map((_, i) => <SkeletonCard key={i} />)
                 : products.length === 0
                   ? (
-                    <div className="col-span-full text-center py-24">
-                      <p className="font-display text-2xl mb-3">Aucun résultat</p>
-                      <p className="text-sm text-charcoal/50">Essayez d'ajuster vos filtres</p>
+                    <div className="col-span-full flex flex-col items-center justify-center py-24 text-center">
+                      <svg className="text-charcoal/15 mb-5" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8">
+                        <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+                        <path d="M8 11h6M11 8v6" strokeLinecap="round" />
+                      </svg>
+                      <p className="font-display text-2xl mb-2">Aucun résultat</p>
+                      <p className="text-sm text-charcoal/50 mb-6">Essayez d'ajuster vos filtres ou votre recherche</p>
+                      <button onClick={clearAll} className="btn-ghost text-xs py-2 px-6">Effacer les filtres</button>
                     </div>
                   )
                   : products.map(p => <ProductCard key={p._id} product={p} />)
