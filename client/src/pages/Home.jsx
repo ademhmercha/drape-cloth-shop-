@@ -58,8 +58,10 @@ export default function Home() {
       api.get('/products?isFeatured=true&limit=6'),
       api.get('/products?limit=8&sort=newest')
     ]).then(([featuredRes, newRes]) => {
-      setFeatured(featuredRes.data.products);
-      setNewArrivals(newRes.data.products);
+      setFeatured(featuredRes.data.products || []);
+      setNewArrivals(newRes.data.products || []);
+    }).catch(() => {
+      // API unavailable — stay with empty arrays, loading stops
     }).finally(() => setLoading(false));
   }, []);
 
