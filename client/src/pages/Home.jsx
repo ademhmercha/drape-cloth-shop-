@@ -72,7 +72,7 @@ export default function Home() {
         {/* Parallax background image */}
         <div ref={heroImageRef} className="absolute inset-0 scale-110">
           <img
-            src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&auto=format&fit=crop&q=90"
+            src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1600&auto=format&fit=crop&q=90"
             alt="DRAPE editorial hero"
             className="w-full h-full object-cover"
             loading="eager"
