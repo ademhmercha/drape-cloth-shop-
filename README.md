@@ -154,34 +154,3 @@ CLIENT_URL=https://your-app.vercel.app
     └── services/
         └── whatsappService.js # Whapi.Cloud integration
 ```
-
----
-
-## API Reference
-
-| Method | Endpoint | Access |
-|--------|----------|--------|
-| POST | `/api/auth/register` | Public |
-| POST | `/api/auth/login` | Public |
-| POST | `/api/auth/refresh-token` | Cookie |
-| GET | `/api/products` | Public |
-| POST | `/api/products` | Admin |
-| POST | `/api/orders` | Client |
-| PATCH | `/api/orders/:id/status` | Admin → triggers WhatsApp |
-| GET | `/api/notifications/my` | Client |
-
----
-
-## Design System
-
-| Token | Value |
-|-------|-------|
-| `--cream` | `#FAF9F6` |
-| `--charcoal` | `#1C1C1C` |
-| `--gold` | `#C9A84C` |
-| Font: headings | Playfair Display |
-| Font: body | DM Sans |
-
----
-
-Made with ♥ for DRAPE — Tunisian luxury fashion
