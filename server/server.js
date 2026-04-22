@@ -16,9 +16,22 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-// CORS — allow frontend origin with credentials for httpOnly cookie refresh tokens
+// CORS — accept production URL + all Vercel preview deployments + localhost
+const ALLOWED_ORIGINS = [
+  process.env.CLIENT_URL,
+  'http://localhost:5173'
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    // Allow exact matches
+    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    // Allow all Vercel preview deployments for this project
+    if (origin.match(/^https:\/\/drape-cloth-shop.*\.vercel\.app$/)) return callback(null, true);
+    callback(new Error(`CORS blocked: ${origin}`));
+  },
   credentials: true
 }));
 
