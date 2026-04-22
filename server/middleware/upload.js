@@ -21,8 +21,7 @@ const uploadToCloudinary = (buffer, mimetype) =>
     const stream = cloudinary.uploader.upload_stream(
       {
         folder: 'drape-products',
-        resource_type: 'image',
-        transformation: [{ width: 1200, height: 1500, crop: 'limit', quality: 'auto' }]
+        resource_type: 'image'
       },
       (error, result) => {
         if (error) return reject(error);
