@@ -63,7 +63,12 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-xs tracking-widest uppercase font-medium mb-2">Mot de passe</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs tracking-widest uppercase font-medium">Mot de passe</label>
+                <Link to="/forgot-password" className="text-xs text-charcoal/40 hover:text-gold transition-colors">
+                  Mot de passe oublié ?
+                </Link>
+              </div>
               <input
                 {...register('password', { required: 'Mot de passe requis' })}
                 type="password"

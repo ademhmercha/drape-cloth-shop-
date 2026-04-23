@@ -13,7 +13,9 @@ const userSchema = new mongoose.Schema({
     postalCode: String,
     country: { type: String, default: 'Tunisia' }
   },
-  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }]
+  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+  resetPasswordToken: String,
+  resetPasswordExpires: Date
 }, { timestamps: true });
 
 // Hash password before saving

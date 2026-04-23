@@ -1,5 +1,7 @@
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { sendPasswordResetEmail } = require('../services/emailService');
 
 const generateAccessToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '15m' });
@@ -86,4 +88,69 @@ exports.refreshToken = async (req, res, next) => {
 exports.logout = (req, res) => {
   res.clearCookie('refreshToken');
   res.json({ message: 'Logged out' });
+};
+
+// POST /api/auth/forgot-password
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email requis' });
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+
+    // Always respond the same way — don't reveal if email exists
+    const SUCCESS_MSG = 'Si cet email existe, un lien de réinitialisation a été envoyé.';
+
+    if (!user) return res.json({ message: SUCCESS_MSG });
+
+    // Generate raw token, store hashed version
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const hashed = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+    user.resetPasswordToken = hashed;
+    user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await user.save({ validateBeforeSave: false });
+
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${rawToken}`;
+
+    try {
+      await sendPasswordResetEmail(user.email, user.name, resetUrl);
+    } catch (emailErr) {
+      // Clear token if email fails so user can retry
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+      return next(new Error('Impossible d\'envoyer l\'email. Réessayez plus tard.'));
+    }
+
+    res.json({ message: SUCCESS_MSG });
+  } catch (err) { next(err); }
+};
+
+// POST /api/auth/reset-password/:token
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { password } = req.body;
+    if (!password || password.length < 6) {
+      return res.status(400).json({ message: 'Le mot de passe doit contenir au moins 6 caractères' });
+    }
+
+    const hashed = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken: hashed,
+      resetPasswordExpires: { $gt: new Date() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Lien invalide ou expiré' });
+    }
+
+    user.password = password; // pre-save hook hashes it
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: 'Mot de passe réinitialisé avec succès' });
+  } catch (err) { next(err); }
 };
