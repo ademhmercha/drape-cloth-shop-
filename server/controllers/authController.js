@@ -116,11 +116,12 @@ exports.forgotPassword = async (req, res, next) => {
     try {
       await sendPasswordResetEmail(user.email, user.name, resetUrl);
     } catch (emailErr) {
+      console.error('[ForgotPassword] Email error:', emailErr.message);
       // Clear token if email fails so user can retry
       user.resetPasswordToken = undefined;
       user.resetPasswordExpires = undefined;
       await user.save({ validateBeforeSave: false });
-      return next(new Error('Impossible d\'envoyer l\'email. Réessayez plus tard.'));
+      return res.status(500).json({ message: `Erreur email: ${emailErr.message}` });
     }
 
     res.json({ message: SUCCESS_MSG });

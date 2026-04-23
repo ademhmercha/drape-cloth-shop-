@@ -1,16 +1,14 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS // Gmail App Password (not your regular password)
-  }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 exports.sendPasswordResetEmail = async (to, name, resetUrl) => {
-  await transporter.sendMail({
-    from: `"DRAPE" <${process.env.EMAIL_USER}>`,
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY manquant dans les variables d\'environnement');
+  }
+
+  const { error } = await resend.emails.send({
+    from: 'DRAPE <onboarding@resend.dev>',
     to,
     subject: 'Réinitialisation de votre mot de passe DRAPE',
     html: `
@@ -47,4 +45,9 @@ exports.sendPasswordResetEmail = async (to, name, resetUrl) => {
       </html>
     `
   });
+
+  if (error) {
+    console.error('[Resend] Error:', error);
+    throw new Error(error.message);
+  }
 };
