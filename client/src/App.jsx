@@ -26,6 +26,7 @@ const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications'));
+const AdminPromoCodes = lazy(() => import('./pages/admin/AdminPromoCodes'));
 
 export default function App() {
   const { pathname } = useLocation();
@@ -82,6 +83,7 @@ export default function App() {
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="notifications" element={<AdminNotifications />} />
+                <Route path="promo" element={<AdminPromoCodes />} />
               </Route>
             </Route>
 

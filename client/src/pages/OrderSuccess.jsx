@@ -63,6 +63,11 @@ export default function OrderSuccess() {
               <p className="text-charcoal/50 text-xs">
                 Préparez {order ? `${order.totalAmount.toFixed(2)} DT` : '…'} pour le livreur
               </p>
+              {order?.discount > 0 && (
+                <p className="text-gold text-xs mt-0.5">
+                  Code {order.promoCode} appliqué — {order.discount.toFixed(2)} DT de réduction
+                </p>
+              )}
             </div>
           </div>
           <div className="flex items-start gap-3">

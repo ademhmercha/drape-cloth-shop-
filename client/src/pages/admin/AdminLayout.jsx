@@ -38,13 +38,20 @@ const MenuIcon = () => (
     <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
   </svg>
 );
+const PromoIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <path d="M9 14l6-6M9 9h.01M15 15h.01" strokeLinecap="round" />
+    <rect x="3" y="3" width="18" height="18" rx="2" />
+  </svg>
+);
 
 const NAV_ITEMS = [
   { label: 'Vue d\'ensemble', href: '/admin', icon: GridIcon },
   { label: 'Produits', href: '/admin/products', icon: TagIcon },
   { label: 'Commandes', href: '/admin/orders', icon: BoxIcon },
   { label: 'Clients', href: '/admin/users', icon: UsersIcon },
-  { label: 'Notifications', href: '/admin/notifications', icon: BellIcon }
+  { label: 'Notifications', href: '/admin/notifications', icon: BellIcon },
+  { label: 'Codes Promo', href: '/admin/promo', icon: PromoIcon }
 ];
 
 export default function AdminLayout() {

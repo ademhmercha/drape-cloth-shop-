@@ -7,13 +7,21 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 
 const STEPS = ['Livraison', 'Récapitulatif', 'Confirmation'];
+const SHIPPING_FEE = 8; // DT — must match server/controllers/orderController.js
 
 export default function Checkout() {
   const [step, setStep] = useState(0);
   const [placing, setPlacing] = useState(false);
-  const { items, total, clearCart } = useCart();
+  const [promoInput, setPromoInput] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promo, setPromo] = useState(null); // { code, discountAmount, type, value }
+
+  const { items, total: subtotal, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const discount = promo?.discountAmount || 0;
+  const total = Math.max(0, subtotal + SHIPPING_FEE - discount);
 
   const { register, handleSubmit, formState: { errors }, getValues } = useForm({
     defaultValues: {
@@ -25,10 +33,32 @@ export default function Checkout() {
     }
   });
 
-  // Redirect if cart is empty
   useEffect(() => {
     if (items.length === 0) navigate('/shop');
   }, [items]);
+
+  const applyPromo = async () => {
+    if (!promoInput.trim()) return;
+    setPromoLoading(true);
+    try {
+      const res = await api.post('/promo/validate', {
+        code: promoInput.trim(),
+        subtotal
+      });
+      setPromo(res.data);
+      toast.success(`Code appliqué — ${res.data.type === 'percent' ? `${res.data.value}%` : `${res.data.value} DT`} de réduction`);
+    } catch (err) {
+      setPromo(null);
+      toast.error(err.response?.data?.message || 'Code invalide');
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  const removePromo = () => {
+    setPromo(null);
+    setPromoInput('');
+  };
 
   const placeOrder = async () => {
     setPlacing(true);
@@ -47,7 +77,8 @@ export default function Checkout() {
           city: values.city,
           postalCode: values.postalCode,
           country: 'Tunisia'
-        }
+        },
+        promoCode: promo?.code || null
       });
       clearCart();
       navigate(`/order-success/${res.data._id}`);
@@ -89,56 +120,33 @@ export default function Checkout() {
         {step === 0 && (
           <form onSubmit={handleSubmit(() => setStep(1))} className="space-y-6">
             <Field label="Nom complet" error={errors.fullName}>
-              <input
-                {...register('fullName', { required: 'Nom requis' })}
-                className="input-field"
-                placeholder="Sarra Ben Ali"
-              />
+              <input {...register('fullName', { required: 'Nom requis' })} className="input-field" placeholder="Sarra Ben Ali" />
             </Field>
             <Field label="Téléphone" error={errors.phone}>
               <div className="flex">
-                <span className="border border-charcoal/20 border-r-0 px-3 flex items-center text-sm text-charcoal/50">
-                  +216
-                </span>
-                <input
-                  {...register('phone', { required: 'Téléphone requis' })}
-                  className="input-field flex-1 border-l-0"
-                  placeholder="50 000 000"
-                />
+                <span className="border border-charcoal/20 border-r-0 px-3 flex items-center text-sm text-charcoal/50">+216</span>
+                <input {...register('phone', { required: 'Téléphone requis' })} className="input-field flex-1 border-l-0" placeholder="50 000 000" />
               </div>
             </Field>
             <Field label="Adresse" error={errors.street}>
-              <input
-                {...register('street', { required: 'Adresse requise' })}
-                className="input-field"
-                placeholder="Rue de la Liberté, Apt 3"
-              />
+              <input {...register('street', { required: 'Adresse requise' })} className="input-field" placeholder="Rue de la Liberté, Apt 3" />
             </Field>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Ville" error={errors.city}>
-                <input
-                  {...register('city', { required: 'Ville requise' })}
-                  className="input-field"
-                  placeholder="Tunis"
-                />
+                <input {...register('city', { required: 'Ville requise' })} className="input-field" placeholder="Tunis" />
               </Field>
               <Field label="Code postal">
-                <input
-                  {...register('postalCode')}
-                  className="input-field"
-                  placeholder="1001"
-                />
+                <input {...register('postalCode')} className="input-field" placeholder="1001" />
               </Field>
             </div>
-            <button type="submit" className="btn-gold w-full py-4 mt-4">
-              Continuer →
-            </button>
+            <button type="submit" className="btn-gold w-full py-4 mt-4">Continuer →</button>
           </form>
         )}
 
         {/* Step 2: Order review */}
         {step === 1 && (
           <div>
+            {/* Items */}
             <div className="divide-y divide-charcoal/10 mb-8">
               {items.map(item => (
                 <div key={`${item.productId}-${item.size}-${item.color}`} className="flex gap-4 py-4">
@@ -154,14 +162,44 @@ export default function Checkout() {
               ))}
             </div>
 
-            <div className="border-t border-charcoal/10 pt-4 mb-8">
-              <div className="flex justify-between items-center">
-                <span className="text-sm tracking-widest uppercase">Total</span>
-                <span className="font-display text-2xl">{total.toFixed(2)} DT</span>
-              </div>
+            {/* Promo code */}
+            <div className="mb-6">
+              <p className="text-xs tracking-widest uppercase font-medium mb-2">Code promo</p>
+              {promo ? (
+                <div className="flex items-center justify-between border border-gold/40 bg-gold/5 px-4 py-3">
+                  <div>
+                    <span className="text-sm font-medium text-gold">{promo.code}</span>
+                    <span className="text-xs text-charcoal/60 ml-2">
+                      − {promo.discountAmount.toFixed(2)} DT
+                    </span>
+                  </div>
+                  <button onClick={removePromo} className="text-xs text-charcoal/40 hover:text-red-500 transition-colors">Retirer</button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={promoInput}
+                    onChange={e => setPromoInput(e.target.value.toUpperCase())}
+                    onKeyDown={e => e.key === 'Enter' && applyPromo()}
+                    placeholder="DRAPE20"
+                    className="input-field flex-1 uppercase"
+                  />
+                  <button
+                    onClick={applyPromo}
+                    disabled={promoLoading || !promoInput.trim()}
+                    className="btn-ghost text-xs px-5 py-0 disabled:opacity-40"
+                  >
+                    {promoLoading ? '…' : 'Appliquer'}
+                  </button>
+                </div>
+              )}
             </div>
 
-            <div className="flex gap-4">
+            {/* Total breakdown */}
+            <OrderSummary subtotal={subtotal} shippingFee={SHIPPING_FEE} discount={discount} total={total} />
+
+            <div className="flex gap-4 mt-8">
               <button onClick={() => setStep(0)} className="btn-ghost flex-1 py-4">← Retour</button>
               <button onClick={() => setStep(2)} className="btn-gold flex-1 py-4">Confirmer →</button>
             </div>
@@ -179,24 +217,52 @@ export default function Checkout() {
               </p>
             </div>
 
+            {/* Summary recap */}
+            <div className="text-left mb-8">
+              <OrderSummary subtotal={subtotal} shippingFee={SHIPPING_FEE} discount={discount} total={total} />
+            </div>
+
             <p className="text-xs text-charcoal/40 mb-8">
-              En passant commande, vous acceptez nos conditions de vente. Paiement uniquement en espèces, aucune autre méthode disponible.
+              En passant commande, vous acceptez nos conditions de vente.
             </p>
 
             <div className="flex gap-4">
-              <button onClick={() => setStep(1)} className="btn-ghost flex-1 py-4" disabled={placing}>
-                ← Retour
-              </button>
+              <button onClick={() => setStep(1)} className="btn-ghost flex-1 py-4" disabled={placing}>← Retour</button>
               <button
                 onClick={placeOrder}
                 disabled={placing}
-                className="btn-gold flex-1 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-gold flex-1 py-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {placing ? 'Envoi en cours...' : 'Passer la commande'}
+                {placing ? <><Spinner /> Envoi…</> : 'Passer la commande'}
               </button>
             </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function OrderSummary({ subtotal, shippingFee, discount, total }) {
+  return (
+    <div className="border border-charcoal/10 divide-y divide-charcoal/10">
+      <div className="flex justify-between items-center px-4 py-3 text-sm">
+        <span className="text-charcoal/60">Sous-total</span>
+        <span>{subtotal.toFixed(2)} DT</span>
+      </div>
+      <div className="flex justify-between items-center px-4 py-3 text-sm">
+        <span className="text-charcoal/60">Frais de livraison</span>
+        <span>{shippingFee.toFixed(2)} DT</span>
+      </div>
+      {discount > 0 && (
+        <div className="flex justify-between items-center px-4 py-3 text-sm text-gold">
+          <span>Réduction code promo</span>
+          <span>− {discount.toFixed(2)} DT</span>
+        </div>
+      )}
+      <div className="flex justify-between items-center px-4 py-3 font-medium">
+        <span className="tracking-widest uppercase text-xs">Total</span>
+        <span className="font-display text-xl">{total.toFixed(2)} DT</span>
       </div>
     </div>
   );
@@ -209,5 +275,13 @@ function Field({ label, error, children }) {
       {children}
       {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
     </div>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" strokeLinecap="round" />
+    </svg>
   );
 }

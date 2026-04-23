@@ -174,9 +174,25 @@ function OrderPanel({ order, onClose, onUpdate }) {
               </div>
             ))}
           </div>
-          <div className="border-t border-gray-100 mt-3 pt-2 flex justify-between text-sm font-medium">
-            <span>Total</span>
-            <span>{order.totalAmount.toFixed(0)} DT</span>
+          <div className="border-t border-gray-100 mt-3 pt-2 space-y-1">
+            <div className="flex justify-between text-xs text-gray-400">
+              <span>Sous-total</span>
+              <span>{(order.totalAmount - (order.shippingFee ?? 8) + (order.discount ?? 0)).toFixed(2)} DT</span>
+            </div>
+            <div className="flex justify-between text-xs text-gray-400">
+              <span>Livraison</span>
+              <span>{(order.shippingFee ?? 8).toFixed(2)} DT</span>
+            </div>
+            {order.discount > 0 && (
+              <div className="flex justify-between text-xs text-amber-600">
+                <span>Promo {order.promoCode && `(${order.promoCode})`}</span>
+                <span>− {order.discount.toFixed(2)} DT</span>
+              </div>
+            )}
+            <div className="flex justify-between text-sm font-medium pt-1 border-t border-gray-100">
+              <span>Total</span>
+              <span>{order.totalAmount.toFixed(2)} DT</span>
+            </div>
           </div>
         </div>
 

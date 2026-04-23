@@ -21,6 +21,9 @@ const orderSchema = new mongoose.Schema({
     postalCode: String,
     country: { type: String, default: 'Tunisia' }
   },
+  shippingFee: { type: Number, default: 8 },
+  discount: { type: Number, default: 0 },
+  promoCode: { type: String, default: null },
   paymentMethod: { type: String, default: 'cash_on_delivery' },
   adminNote: String,
   confirmedAt: Date

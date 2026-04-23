@@ -348,9 +348,25 @@ function OrderModal({ order, onClose }) {
             </div>
           </div>
 
-          <div className="border-t border-charcoal/10 pt-4 flex justify-between">
-            <span className="font-medium">Total</span>
-            <span className="font-display text-xl">{order.totalAmount.toFixed(2)} DT</span>
+          <div className="border-t border-charcoal/10 pt-4 space-y-1.5">
+            <div className="flex justify-between text-sm text-charcoal/60">
+              <span>Sous-total</span>
+              <span>{(order.totalAmount - (order.shippingFee ?? 8) + (order.discount ?? 0)).toFixed(2)} DT</span>
+            </div>
+            <div className="flex justify-between text-sm text-charcoal/60">
+              <span>Livraison</span>
+              <span>{(order.shippingFee ?? 8).toFixed(2)} DT</span>
+            </div>
+            {order.discount > 0 && (
+              <div className="flex justify-between text-sm text-gold">
+                <span>Code promo {order.promoCode && `(${order.promoCode})`}</span>
+                <span>− {order.discount.toFixed(2)} DT</span>
+              </div>
+            )}
+            <div className="flex justify-between font-medium pt-1 border-t border-charcoal/10">
+              <span>Total</span>
+              <span className="font-display text-xl">{order.totalAmount.toFixed(2)} DT</span>
+            </div>
           </div>
 
           <div>

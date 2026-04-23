@@ -1,7 +1,10 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Notification = require('../models/Notification');
+const PromoCode = require('../models/PromoCode');
 const { sendWhatsAppMessage } = require('../services/whatsappService');
+
+const SHIPPING_FEE = 8; // DT, fixed
 
 // WhatsApp message templates (French — Tunisian market)
 const buildWhatsAppMessage = (status, user, order) => {
@@ -18,7 +21,7 @@ const buildWhatsAppMessage = (status, user, order) => {
 // POST /api/orders (client)
 exports.createOrder = async (req, res, next) => {
   try {
-    const { items, shippingAddress } = req.body;
+    const { items, shippingAddress, promoCode } = req.body;
     if (!items?.length) return res.status(400).json({ message: 'No items in order' });
 
     // Validate stock for each item before saving
@@ -43,12 +46,34 @@ exports.createOrder = async (req, res, next) => {
       );
     }
 
-    const totalAmount = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+    // Apply promo code if provided
+    let discount = 0;
+    let appliedCode = null;
+    if (promoCode) {
+      const promo = await PromoCode.findOne({ code: promoCode.trim().toUpperCase(), isActive: true });
+      if (promo &&
+          (!promo.expiresAt || promo.expiresAt > new Date()) &&
+          (promo.maxUses === null || promo.usedCount < promo.maxUses) &&
+          subtotal >= promo.minOrderAmount) {
+        discount = promo.type === 'percent'
+          ? Math.round((subtotal * promo.value / 100) * 100) / 100
+          : Math.min(promo.value, subtotal);
+        appliedCode = promo.code;
+        await PromoCode.findByIdAndUpdate(promo._id, { $inc: { usedCount: 1 } });
+      }
+    }
+
+    const totalAmount = Math.max(0, subtotal + SHIPPING_FEE - discount);
 
     const order = await Order.create({
       user: req.user._id,
       items,
       totalAmount,
+      shippingFee: SHIPPING_FEE,
+      discount,
+      promoCode: appliedCode,
       shippingAddress
     });
 
