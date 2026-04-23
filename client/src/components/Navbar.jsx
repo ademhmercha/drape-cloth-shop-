@@ -81,8 +81,9 @@ export default function Navbar() {
                 )}
                 <Link
                   to="/dashboard"
-                  className="text-xs tracking-widest uppercase font-medium hover:text-gold transition-colors"
+                  className="flex items-center gap-2 text-xs tracking-widest uppercase font-medium hover:text-gold transition-colors"
                 >
+                  <Avatar user={user} size={28} />
                   Mon Compte
                 </Link>
                 <button
@@ -173,6 +174,22 @@ export default function Navbar() {
 
       <CartDrawer />
     </>
+  );
+}
+
+function Avatar({ user, size = 28 }) {
+  const initials = user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+  return (
+    <div
+      className="rounded-full overflow-hidden flex-shrink-0 bg-gold/20 flex items-center justify-center border border-charcoal/10"
+      style={{ width: size, height: size }}
+    >
+      {user?.avatar ? (
+        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+      ) : (
+        <span className="font-display text-gold leading-none" style={{ fontSize: size * 0.38 }}>{initials}</span>
+      )}
+    </div>
   );
 }
 

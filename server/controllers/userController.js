@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Order = require('../models/Order');
+const { uploadToCloudinary } = require('../middleware/upload');
 
 // GET /api/users/me
 exports.getMe = async (req, res) => {
@@ -55,6 +56,16 @@ exports.getUserById = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+// PUT /api/users/me/avatar
+exports.updateAvatar = async (req, res, next) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'Aucun fichier envoyé' });
+    const url = await uploadToCloudinary(req.file.buffer, req.file.mimetype);
+    const user = await User.findByIdAndUpdate(req.user._id, { avatar: url }, { new: true });
+    res.json(user);
+  } catch (err) { next(err); }
 };
 
 // GET /api/users/me/wishlist

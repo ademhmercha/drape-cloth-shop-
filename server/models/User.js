@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
     postalCode: String,
     country: { type: String, default: 'Tunisia' }
   },
+  avatar: { type: String, default: null },
   wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   resetPasswordToken: String,
   resetPasswordExpires: Date

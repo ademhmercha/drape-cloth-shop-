@@ -215,6 +215,10 @@ function EmptyState({ icon, title, subtitle, action }) {
 
 function ProfileTab({ user, updateUser }) {
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null);
+  const fileInputRef = useState(null);
+
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
       name: user?.name,
@@ -224,6 +228,32 @@ function ProfileTab({ user, updateUser }) {
       postalCode: user?.address?.postalCode
     }
   });
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { toast.error('Fichier image uniquement'); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error('Image trop lourde (max 5 Mo)'); return; }
+
+    // Instant local preview
+    setAvatarPreview(URL.createObjectURL(file));
+    setUploadingAvatar(true);
+    try {
+      const form = new FormData();
+      form.append('avatar', file);
+      const res = await api.put('/users/me/avatar', form, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      updateUser(res.data);
+      setAvatarPreview(res.data.avatar);
+      toast.success('Photo mise à jour !');
+    } catch {
+      toast.error('Erreur lors du téléchargement');
+      setAvatarPreview(user?.avatar || null);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const onSubmit = async (data) => {
     setSaving(true);
@@ -242,54 +272,99 @@ function ProfileTab({ user, updateUser }) {
     }
   };
 
+  const initials = user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-md space-y-6">
-      <div>
-        <label className="block text-xs tracking-widest uppercase font-medium mb-2">Nom complet</label>
-        <input {...register('name', { required: true })} className="input-field" />
-        {errors.name && <p className="text-red-500 text-xs mt-1">Nom requis</p>}
-      </div>
-
-      <div>
-        <label className="block text-xs tracking-widest uppercase font-medium mb-2">Email</label>
-        <input value={user?.email} disabled className="input-field opacity-50 cursor-not-allowed" />
-      </div>
-
-      <div>
-        <label className="block text-xs tracking-widest uppercase font-medium mb-2">Téléphone</label>
-        <div className="flex">
-          <span className="border border-charcoal/20 border-r-0 px-3 flex items-center text-sm text-charcoal/50">
-            +216
-          </span>
-          <input {...register('phone')} className="input-field flex-1 border-l-0" placeholder="50 000 000" />
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-xs tracking-widest uppercase font-medium mb-2">Adresse</label>
-        <input {...register('street')} className="input-field" placeholder="Rue et numéro" />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs tracking-widest uppercase font-medium mb-2">Ville</label>
-          <input {...register('city')} className="input-field" />
+    <div className="max-w-md space-y-8">
+      {/* Avatar */}
+      <div className="flex items-center gap-6">
+        <div className="relative flex-shrink-0">
+          <div className="w-20 h-20 rounded-full overflow-hidden bg-charcoal/10 border-2 border-charcoal/10">
+            {avatarPreview ? (
+              <img src={avatarPreview} alt={user?.name} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gold/10">
+                <span className="font-display text-xl text-gold">{initials}</span>
+              </div>
+            )}
+          </div>
+          {/* Upload overlay */}
+          <label className={`absolute inset-0 rounded-full flex items-center justify-center cursor-pointer transition-all ${uploadingAvatar ? 'bg-black/40' : 'bg-black/0 hover:bg-black/30'}`}>
+            {uploadingAvatar ? (
+              <Spinner className="text-white" />
+            ) : (
+              <CameraIcon className="text-white opacity-0 hover:opacity-100 transition-opacity" />
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+              disabled={uploadingAvatar}
+            />
+          </label>
         </div>
         <div>
-          <label className="block text-xs tracking-widest uppercase font-medium mb-2">Code postal</label>
-          <input {...register('postalCode')} className="input-field" />
+          <p className="font-medium text-sm">{user?.name}</p>
+          <p className="text-xs text-charcoal/50 mt-0.5">{user?.email}</p>
+          <label className="mt-2 inline-block text-xs text-gold underline underline-offset-2 cursor-pointer hover:text-gold/70 transition-colors">
+            Changer la photo
+            <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} disabled={uploadingAvatar} />
+          </label>
         </div>
       </div>
 
-      <button type="submit" disabled={saving} className="btn-gold w-full py-3.5 flex items-center justify-center gap-2 disabled:opacity-50">
-        {saving ? (
-          <>
-            <Spinner />
-            Enregistrement…
-          </>
-        ) : 'Enregistrer les modifications'}
-      </button>
-    </form>
+      {/* Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div>
+          <label className="block text-xs tracking-widest uppercase font-medium mb-2">Nom complet</label>
+          <input {...register('name', { required: true })} className="input-field" />
+          {errors.name && <p className="text-red-500 text-xs mt-1">Nom requis</p>}
+        </div>
+
+        <div>
+          <label className="block text-xs tracking-widest uppercase font-medium mb-2">Email</label>
+          <input value={user?.email} disabled className="input-field opacity-50 cursor-not-allowed" />
+        </div>
+
+        <div>
+          <label className="block text-xs tracking-widest uppercase font-medium mb-2">Téléphone</label>
+          <div className="flex">
+            <span className="border border-charcoal/20 border-r-0 px-3 flex items-center text-sm text-charcoal/50">+216</span>
+            <input {...register('phone')} className="input-field flex-1 border-l-0" placeholder="50 000 000" />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs tracking-widest uppercase font-medium mb-2">Adresse</label>
+          <input {...register('street')} className="input-field" placeholder="Rue et numéro" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs tracking-widest uppercase font-medium mb-2">Ville</label>
+            <input {...register('city')} className="input-field" />
+          </div>
+          <div>
+            <label className="block text-xs tracking-widest uppercase font-medium mb-2">Code postal</label>
+            <input {...register('postalCode')} className="input-field" />
+          </div>
+        </div>
+
+        <button type="submit" disabled={saving} className="btn-gold w-full py-3.5 flex items-center justify-center gap-2 disabled:opacity-50">
+          {saving ? <><Spinner />Enregistrement…</> : 'Enregistrer les modifications'}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+function CameraIcon({ className = '' }) {
+  return (
+    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+      <circle cx="12" cy="13" r="4" />
+    </svg>
   );
 }
 
