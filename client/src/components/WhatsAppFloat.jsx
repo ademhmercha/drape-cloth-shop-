@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const PHONE = import.meta.env.VITE_WHATSAPP_NUMBER || '21650000000';
+const PHONE = import.meta.env.VITE_WHATSAPP_NUMBER || '21650733444';
 const MESSAGE = encodeURIComponent('Bonjour, je suis intéressé(e) par vos produits DRAPE 👗');
 
 export default function WhatsAppFloat() {

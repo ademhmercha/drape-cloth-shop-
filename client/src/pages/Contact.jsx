@@ -48,7 +48,7 @@ export default function Contact() {
                   {
                     icon: '📱',
                     label: 'WhatsApp',
-                    value: '+216 50 000 000',
+                    value: '+216 50733444',
                     href: `https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '21650000000'}`
                   },
                   {
