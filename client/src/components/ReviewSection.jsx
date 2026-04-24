@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
-import { useLang } from '../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 export default function ReviewSection({ productId }) {
   const { user } = useAuth();
-  const { t } = useLang();
+  const { t } = useTranslation();
   const [data, setData] = useState({ reviews: [], average: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -67,7 +67,7 @@ export default function ReviewSection({ productId }) {
       {/* Header */}
       <div className="flex items-end justify-between mb-8">
         <div>
-          <h2 className="font-display text-2xl dark:text-cream">{t('reviews')}</h2>
+          <h2 className="font-display text-2xl dark:text-cream">{t('reviews.title')}</h2>
           {data.total > 0 && (
             <div className="flex items-center gap-2 mt-2">
               <Stars rating={data.average} size={16} />
@@ -78,7 +78,7 @@ export default function ReviewSection({ productId }) {
         </div>
         {user && !hasReviewed && !showForm && (
           <button onClick={() => setShowForm(true)} className="btn-ghost text-xs py-2.5 px-5 dark:border-cream dark:text-cream dark:hover:bg-cream dark:hover:text-charcoal">
-            {t('writeReview')}
+            {t('reviews.write')}
           </button>
         )}
       </div>
@@ -87,7 +87,7 @@ export default function ReviewSection({ productId }) {
       {showForm && (
         <form onSubmit={handleSubmit} className="border border-charcoal/10 dark:border-cream/10 p-6 mb-8 space-y-4">
           <div>
-            <p className="text-xs tracking-widest uppercase font-medium mb-3 dark:text-cream">{t('yourRating')}</p>
+            <p className="text-xs tracking-widest uppercase font-medium mb-3 dark:text-cream">{t('reviews.rating')}</p>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map(s => (
                 <button
@@ -107,7 +107,7 @@ export default function ReviewSection({ productId }) {
             </div>
           </div>
           <div>
-            <p className="text-xs tracking-widest uppercase font-medium mb-2 dark:text-cream">{t('yourComment')}</p>
+            <p className="text-xs tracking-widest uppercase font-medium mb-2 dark:text-cream">{t('reviews.comment')}</p>
             <textarea
               value={comment}
               onChange={e => setComment(e.target.value)}
@@ -120,7 +120,7 @@ export default function ReviewSection({ productId }) {
           </div>
           <div className="flex gap-3">
             <button type="submit" disabled={submitting} className="btn-gold flex items-center gap-2 disabled:opacity-50">
-              {submitting ? <><Spinner />{t('sending')}…</> : t('submitReview')}
+              {submitting ? <><Spinner />{t('contact.sending')}…</> : t('reviews.submit')}
             </button>
             <button type="button" onClick={() => setShowForm(false)} className="btn-ghost text-xs py-3 px-6 dark:border-cream dark:text-cream">
               Annuler
@@ -132,7 +132,7 @@ export default function ReviewSection({ productId }) {
       {/* Login prompt */}
       {!user && (
         <p className="text-sm text-charcoal/50 dark:text-cream/50 mb-6">
-          <Link to="/login" className="text-gold hover:underline">{t('login')}</Link> {t('loginToReview').toLowerCase()}
+          <Link to="/login" className="text-gold hover:underline">{t('nav.login')}</Link> {t('reviews.loginToReview').toLowerCase()}
         </p>
       )}
 
@@ -142,7 +142,7 @@ export default function ReviewSection({ productId }) {
           {Array(3).fill(0).map((_, i) => <div key={i} className="h-24 skeleton" />)}
         </div>
       ) : data.reviews.length === 0 ? (
-        <p className="text-charcoal/40 dark:text-cream/40 text-sm py-8 text-center">{t('noReviews')}</p>
+        <p className="text-charcoal/40 dark:text-cream/40 text-sm py-8 text-center">{t('reviews.noReviews')}</p>
       ) : (
         <div className="space-y-6">
           {data.reviews.map(r => (

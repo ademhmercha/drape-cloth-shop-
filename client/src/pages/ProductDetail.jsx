@@ -5,7 +5,7 @@ import api from '../utils/api';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useAuth } from '../contexts/AuthContext';
-import { useLang } from '../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import ProductCard from '../components/ProductCard';
 import SkeletonCard from '../components/SkeletonCard';
 import ReviewSection from '../components/ReviewSection';
@@ -18,7 +18,7 @@ export default function ProductDetail() {
   const { addItem, setIsOpen } = useCart();
   const { toggle, isInWishlist } = useWishlist();
   const { user } = useAuth();
-  const { t } = useLang();
+  const { t } = useTranslation();
 
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
@@ -170,7 +170,7 @@ export default function ProductDetail() {
               {product.colors?.length > 0 && (
                 <div className="mb-6">
                   <p className="text-xs tracking-widest uppercase font-medium mb-3 dark:text-cream">
-                    {t('color')} — <span className="text-gold">{selectedColor}</span>
+                    {t('product.color')} — <span className="text-gold">{selectedColor}</span>
                   </p>
                   <div className="flex gap-3">
                     {product.colors.map(c => (
@@ -189,10 +189,10 @@ export default function ProductDetail() {
               {product.sizes?.length > 0 && (
                 <div className="mb-8">
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs tracking-widest uppercase font-medium dark:text-cream">{t('size')}</p>
+                    <p className="text-xs tracking-widest uppercase font-medium dark:text-cream">{t('product.size')}</p>
                     <button onClick={() => setSizeGuideOpen(true)}
                       className="text-xs text-charcoal/50 dark:text-cream/50 underline underline-offset-2 hover:text-gold transition-colors">
-                      {t('sizeGuide')}
+                      {t('product.sizeGuide')}
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -216,8 +216,8 @@ export default function ProductDetail() {
                   {selectedSizeData && (
                     <p className="text-xs text-charcoal/50 dark:text-cream/50 mt-2">
                       {stockAvailable <= 5 && stockAvailable > 0
-                        ? `⚠️ Plus que ${stockAvailable} ${t('inStock')}`
-                        : `${stockAvailable} ${t('inStock')}`}
+                        ? `⚠️ Plus que ${stockAvailable} ${t('product.inStock')}`
+                        : `${stockAvailable} ${t('product.inStock')}`}
                     </p>
                   )}
                 </div>
@@ -225,7 +225,7 @@ export default function ProductDetail() {
 
               {/* Quantity */}
               <div className="flex items-center gap-4 mb-8">
-                <p className="text-xs tracking-widest uppercase font-medium dark:text-cream">{t('quantity')}</p>
+                <p className="text-xs tracking-widest uppercase font-medium dark:text-cream">{t('product.quantity')}</p>
                 <div className="flex items-center border border-charcoal/20 dark:border-cream/20">
                   <button onClick={() => setQuantity(q => Math.max(1, q - 1))}
                     className="w-10 h-10 flex items-center justify-center hover:bg-charcoal hover:text-cream dark:hover:bg-cream dark:hover:text-charcoal transition-colors">−</button>
@@ -239,7 +239,7 @@ export default function ProductDetail() {
               <div className="flex gap-3 mb-4">
                 <button onClick={handleAddToCart} disabled={adding}
                   className="btn-gold flex-1 py-4 text-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
-                  {adding ? <><Spinner />{t('addingToCart')}</> : t('addToCart')}
+                  {adding ? <><Spinner />{t('product.adding')}</> : t('product.addToCart')}
                 </button>
                 <button onClick={handleWishlist}
                   className={`w-14 h-14 border flex items-center justify-center transition-all ${
@@ -299,7 +299,7 @@ export default function ProductDetail() {
           {/* Related products */}
           {related.length > 0 && (
             <section className="mt-24">
-              <h2 className="font-display text-2xl mb-10 dark:text-cream">{t('relatedProducts')}</h2>
+              <h2 className="font-display text-2xl mb-10 dark:text-cream">{t('product.related')}</h2>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                 {related.slice(0, 4).map(p => <ProductCard key={p._id} product={p} />)}
               </div>
@@ -333,7 +333,7 @@ export default function ProductDetail() {
             <div className="absolute inset-0 bg-black/50" onClick={() => setSizeGuideOpen(false)} />
             <div className="relative bg-cream dark:bg-charcoal-soft max-w-lg w-full shadow-2xl">
               <div className="flex items-center justify-between p-6 border-b border-charcoal/10 dark:border-cream/10">
-                <h3 className="font-display text-xl dark:text-cream">{t('sizeGuide')}</h3>
+                <h3 className="font-display text-xl dark:text-cream">{t('product.sizeGuide')}</h3>
                 <button onClick={() => setSizeGuideOpen(false)} className="text-2xl text-charcoal/50 dark:text-cream/50 hover:text-charcoal dark:hover:text-cream leading-none">✕</button>
               </div>
               <div className="p-6">

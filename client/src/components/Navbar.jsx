@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLang } from '../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import CartDrawer from './CartDrawer';
 import api from '../utils/api';
 
@@ -26,7 +27,8 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const { count, setIsOpen } = useCart();
   const { dark, toggle: toggleTheme } = useTheme();
-  const { lang, t, toggle: toggleLang } = useLang();
+  const { lang, toggle: toggleLang } = useLang();
+  const { t } = useTranslation();
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
@@ -91,12 +93,12 @@ export default function Navbar() {
           {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-8">
             {[
-              { label: t('shop'), href: '/shop' },
-              { label: t('newArrivals'), href: '/shop?sort=newest' },
-              { label: t('women'), href: '/shop?category=women' },
-              { label: t('men'), href: '/shop?category=men' },
-              { label: 'À propos', href: '/about' },
-              { label: 'Contact', href: '/contact' }
+              { label: t('nav.shop'), href: '/shop' },
+              { label: t('nav.newArrivals'), href: '/shop?sort=newest' },
+              { label: t('nav.women'), href: '/shop?category=women' },
+              { label: t('nav.men'), href: '/shop?category=men' },
+              { label: t('nav.about'), href: '/about' },
+              { label: t('nav.contact'), href: '/contact' }
             ].map(({ label, href }) => (
               <Link key={href} to={href}
                 className="text-xs tracking-widest uppercase font-medium text-charcoal dark:text-cream hover:text-gold transition-colors">
@@ -170,15 +172,15 @@ export default function Navbar() {
                 )}
                 <Link to="/dashboard" className="flex items-center gap-2 text-xs tracking-widest uppercase font-medium text-charcoal dark:text-cream hover:text-gold transition-colors">
                   <Avatar user={user} size={26} />
-                  {t('myAccount')}
+                  {t('nav.myAccount')}
                 </Link>
                 <button onClick={logout} className="text-xs tracking-widest uppercase font-medium text-charcoal/50 dark:text-cream/50 hover:text-gold transition-colors">
-                  {t('logout')}
+                  {t('nav.logout')}
                 </button>
               </div>
             ) : (
               <Link to="/login" className="hidden lg:block text-xs tracking-widest uppercase font-medium text-charcoal dark:text-cream hover:text-gold transition-colors">
-                {t('login')}
+                {t('nav.login')}
               </Link>
             )}
 
@@ -203,13 +205,13 @@ export default function Navbar() {
             <button onClick={() => setMenuOpen(false)} className="absolute top-5 right-5 text-2xl text-charcoal dark:text-cream">✕</button>
             <Link to="/" className="font-display text-xl tracking-[0.25em] mb-10 text-charcoal dark:text-cream">DRAPE</Link>
             {[
-              { label: t('shop'), href: '/shop' },
-              { label: t('women'), href: '/shop?category=women' },
-              { label: t('men'), href: '/shop?category=men' },
-              { label: 'Enfants', href: '/shop?category=kids' },
-              { label: 'Accessoires', href: '/shop?category=accessories' },
-              { label: 'À propos', href: '/about' },
-              { label: 'Contact', href: '/contact' }
+              { label: t('nav.shop'), href: '/shop' },
+              { label: t('nav.women'), href: '/shop?category=women' },
+              { label: t('nav.men'), href: '/shop?category=men' },
+              { label: t('nav.kids'), href: '/shop?category=kids' },
+              { label: t('nav.accessories'), href: '/shop?category=accessories' },
+              { label: t('nav.about'), href: '/about' },
+              { label: t('nav.contact'), href: '/contact' }
             ].map(({ label, href }) => (
               <Link key={href} to={href} className="py-3 text-sm tracking-widest uppercase font-medium border-b border-charcoal/10 dark:border-cream/10 hover:text-gold transition-colors text-charcoal dark:text-cream">
                 {label}
@@ -229,16 +231,16 @@ export default function Navbar() {
               {user ? (
                 <>
                   <Link to="/dashboard" className="text-sm tracking-widest uppercase font-medium hover:text-gold text-charcoal dark:text-cream flex items-center gap-2">
-                    <Avatar user={user} size={24} />{t('myAccount')}
+                    <Avatar user={user} size={24} />{t('nav.myAccount')}
                   </Link>
                   <button onClick={logout} className="text-sm tracking-widest uppercase font-medium text-left hover:text-gold text-charcoal dark:text-cream">
-                    {t('logout')}
+                    {t('nav.logout')}
                   </button>
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="text-sm tracking-widest uppercase font-medium hover:text-gold text-charcoal dark:text-cream">{t('login')}</Link>
-                  <Link to="/register" className="text-sm tracking-widest uppercase font-medium hover:text-gold text-charcoal dark:text-cream">{t('register')}</Link>
+                  <Link to="/login" className="text-sm tracking-widest uppercase font-medium hover:text-gold text-charcoal dark:text-cream">{t('nav.login')}</Link>
+                  <Link to="/register" className="text-sm tracking-widest uppercase font-medium hover:text-gold text-charcoal dark:text-cream">{t('nav.register')}</Link>
                 </>
               )}
             </div>

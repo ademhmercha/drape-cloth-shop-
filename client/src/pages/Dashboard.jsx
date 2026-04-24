@@ -5,10 +5,11 @@ import toast from 'react-hot-toast';
 import api from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../contexts/WishlistContext';
+import { useTranslation } from 'react-i18next';
 import StatusBadge from '../components/StatusBadge';
 import ProductCard from '../components/ProductCard';
 
-const TABS = ['Mes Commandes', 'Favoris', 'Mon Profil', 'Notifications'];
+// TABS is now dynamic — built inside the component using t()
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState(0);
@@ -19,8 +20,10 @@ export default function Dashboard() {
   const [loadingNotifs, setLoadingNotifs] = useState(true);
   const { user, updateUser } = useAuth();
   const { products: wishlistProducts, count: wishlistCount } = useWishlist();
+  const { t } = useTranslation();
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
+  const TABS = [t('dashboard.orders'), t('dashboard.favorites'), t('dashboard.profile'), t('dashboard.notifications')];
 
   useEffect(() => {
     api.get('/orders/my').then(res => setOrders(res.data)).finally(() => setLoadingOrders(false));
@@ -41,8 +44,8 @@ export default function Dashboard() {
     <div className="pt-24 pb-32 lg:pb-20 min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
         <div className="mb-10">
-          <p className="text-xs tracking-widest uppercase text-gold mb-1">Tableau de bord</p>
-          <h1 className="font-display text-3xl">Bonjour, {user?.name?.split(' ')[0]}</h1>
+          <p className="text-xs tracking-widest uppercase text-gold mb-1">{t('dashboard.label')}</p>
+          <h1 className="font-display text-3xl dark:text-cream">{t('dashboard.hello')}, {user?.name?.split(' ')[0]}</h1>
         </div>
 
         {/* Tab navigation */}
@@ -83,9 +86,9 @@ export default function Dashboard() {
             ) : orders.length === 0 ? (
               <EmptyState
                 icon={<BoxIcon />}
-                title="Aucune commande"
-                subtitle="Votre historique de commandes apparaîtra ici"
-                action={<Link to="/shop" className="btn-gold">Découvrir la boutique</Link>}
+                title={t('dashboard.noOrders')}
+                subtitle={t('dashboard.noOrdersDesc')}
+                action={<Link to="/shop" className="btn-gold">{t('dashboard.discoverShop')}</Link>}
               />
             ) : (
               <div className="space-y-4">
@@ -125,9 +128,9 @@ export default function Dashboard() {
             {wishlistProducts.length === 0 ? (
               <EmptyState
                 icon={<HeartEmptyIcon />}
-                title="Aucun favori"
-                subtitle="Cliquez sur le cœur d'un produit pour le retrouver ici"
-                action={<Link to="/shop" className="btn-gold">Explorer la boutique</Link>}
+                title={t('dashboard.noFavorites')}
+                subtitle={t('dashboard.noFavoritesDesc')}
+                action={<Link to="/shop" className="btn-gold">{t('dashboard.exploreShop')}</Link>}
               />
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 sm:gap-6">
@@ -151,7 +154,7 @@ export default function Dashboard() {
                   onClick={markAllRead}
                   className="text-xs tracking-widest uppercase text-gold hover:underline"
                 >
-                  Tout marquer lu
+                  {t('dashboard.markAllRead')}
                 </button>
               </div>
             )}
@@ -162,8 +165,8 @@ export default function Dashboard() {
             ) : notifications.length === 0 ? (
               <EmptyState
                 icon={<BellEmptyIcon />}
-                title="Aucune notification"
-                subtitle="Vos notifications apparaîtront ici"
+                title={t('dashboard.noNotifs')}
+                subtitle={t('dashboard.noNotifsDesc')}
               />
             ) : (
               <div className="space-y-2">

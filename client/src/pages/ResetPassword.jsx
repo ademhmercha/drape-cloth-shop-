@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
 
 export default function ResetPassword() {
+  const { t } = useTranslation();
   const { token } = useParams();
   const navigate = useNavigate();
   const [done, setDone] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm();
   const password = watch('password');
 
@@ -26,72 +27,63 @@ export default function ResetPassword() {
 
   if (done) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6">
+      <div className="min-h-screen flex items-center justify-center px-6 dark:bg-charcoal">
         <div className="max-w-md w-full text-center">
-          <Link to="/" className="font-display text-2xl tracking-[0.3em] text-charcoal block mb-12">DRAPE</Link>
+          <Link to="/" className="font-display text-2xl tracking-[0.3em] text-charcoal dark:text-cream block mb-12">DRAPE</Link>
           <div className="w-16 h-16 bg-gold/10 border border-gold/30 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2">
               <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h1 className="font-display text-3xl mb-3">Mot de passe modifié</h1>
-          <p className="text-charcoal/60 text-sm mb-8">
-            Votre mot de passe a été réinitialisé avec succès.<br />
-            Redirection vers la connexion…
-          </p>
-          <Link to="/login" className="btn-gold inline-block">Se connecter</Link>
+          <h1 className="font-display text-3xl mb-3 dark:text-cream">{t('auth.passwordChangedTitle')}</h1>
+          <p className="text-charcoal/60 dark:text-cream/60 text-sm mb-8">{t('auth.passwordChangedDesc')}</p>
+          <Link to="/login" className="btn-gold inline-block">{t('auth.loginNow')}</Link>
         </div>
       </div>
     );
   }
 
+  const strength = [
+    password?.length >= 8,
+    /[A-Z]/.test(password || ''),
+    /[0-9]/.test(password || ''),
+    /[^A-Za-z0-9]/.test(password || '')
+  ].filter(Boolean).length;
+
+  const strengthLabels = [t('auth.strength.weak'), t('auth.strength.fair'), t('auth.strength.good'), t('auth.strength.strong')];
+  const strengthColors = ['bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-green-500'];
+
   return (
-    <div className="min-h-screen flex">
-      {/* Left: image */}
+    <div className="min-h-screen flex dark:bg-charcoal">
       <div className="hidden lg:block lg:w-1/2 relative">
-        <img
-          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1000&auto=format&fit=crop"
-          alt="DRAPE"
-          className="w-full h-full object-cover"
-        />
+        <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1000&auto=format&fit=crop" alt="DRAPE" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-charcoal/30" />
         <div className="absolute bottom-16 left-12">
-          <p className="font-display text-5xl text-cream leading-tight">
-            Nouveau<br />
-            <em>départ</em>
-          </p>
+          <p className="font-display text-5xl text-cream leading-tight">Nouveau<br /><em>départ</em></p>
         </div>
       </div>
 
-      {/* Right: form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-20">
         <div className="w-full max-w-md">
-          <Link to="/" className="font-display text-2xl tracking-[0.3em] text-charcoal block mb-12 text-center">
-            DRAPE
-          </Link>
-
-          <h1 className="font-display text-3xl mb-2">Nouveau mot de passe</h1>
-          <p className="text-sm text-charcoal/50 mb-10">Choisissez un mot de passe sécurisé d'au moins 6 caractères.</p>
+          <Link to="/" className="font-display text-2xl tracking-[0.3em] text-charcoal dark:text-cream block mb-12 text-center">DRAPE</Link>
+          <h1 className="font-display text-3xl mb-2 dark:text-cream">{t('auth.newPasswordTitle')}</h1>
+          <p className="text-sm text-charcoal/50 dark:text-cream/50 mb-10">{t('auth.newPasswordDesc')}</p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
-              <label className="block text-xs tracking-widest uppercase font-medium mb-2">Nouveau mot de passe</label>
+              <label className="block text-xs tracking-widest uppercase font-medium mb-2 dark:text-cream">{t('auth.password')}</label>
               <div className="relative">
                 <input
                   {...register('password', {
-                    required: 'Mot de passe requis',
-                    minLength: { value: 6, message: 'Minimum 6 caractères' }
+                    required: t('auth.passwordRequired'),
+                    minLength: { value: 6, message: t('auth.passwordMin') }
                   })}
                   type={showPass ? 'text' : 'password'}
-                  className="input-field pr-10"
+                  className="input-field pr-10 dark:bg-charcoal dark:text-cream dark:border-cream/20"
                   placeholder="••••••••"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-charcoal/40 hover:text-charcoal transition-colors"
-                  tabIndex={-1}
-                >
+                <button type="button" onClick={() => setShowPass(v => !v)} tabIndex={-1}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-charcoal/40 dark:text-cream/40 hover:text-charcoal dark:hover:text-cream">
                   {showPass ? <EyeOff /> : <Eye />}
                 </button>
               </div>
@@ -99,68 +91,43 @@ export default function ResetPassword() {
             </div>
 
             <div>
-              <label className="block text-xs tracking-widest uppercase font-medium mb-2">Confirmer le mot de passe</label>
+              <label className="block text-xs tracking-widest uppercase font-medium mb-2 dark:text-cream">{t('auth.confirmPwd')}</label>
               <div className="relative">
                 <input
                   {...register('confirm', {
-                    required: 'Confirmation requise',
-                    validate: v => v === password || 'Les mots de passe ne correspondent pas'
+                    required: t('auth.confirmRequired'),
+                    validate: v => v === password || t('auth.passwordMismatch')
                   })}
                   type={showConfirm ? 'text' : 'password'}
-                  className="input-field pr-10"
+                  className="input-field pr-10 dark:bg-charcoal dark:text-cream dark:border-cream/20"
                   placeholder="••••••••"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-charcoal/40 hover:text-charcoal transition-colors"
-                  tabIndex={-1}
-                >
+                <button type="button" onClick={() => setShowConfirm(v => !v)} tabIndex={-1}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-charcoal/40 dark:text-cream/40 hover:text-charcoal dark:hover:text-cream">
                   {showConfirm ? <EyeOff /> : <Eye />}
                 </button>
               </div>
               {errors.confirm && <p className="text-red-500 text-xs mt-1">{errors.confirm.message}</p>}
             </div>
 
-            {/* Strength indicator */}
-            {password && <StrengthBar password={password} />}
+            {password && (
+              <div>
+                <div className="flex gap-1 mb-1">
+                  {[0,1,2,3].map(i => (
+                    <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < strength ? strengthColors[strength - 1] : 'bg-charcoal/10 dark:bg-cream/10'}`} />
+                  ))}
+                </div>
+                <p className="text-xs text-charcoal/50 dark:text-cream/50">{strength > 0 ? strengthLabels[strength - 1] : ''}</p>
+              </div>
+            )}
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn-gold w-full py-4 flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {isSubmitting ? <><Spinner /> Enregistrement…</> : 'Enregistrer le mot de passe'}
+            <button type="submit" disabled={isSubmitting}
+              className="btn-gold w-full py-4 flex items-center justify-center gap-2 disabled:opacity-50">
+              {isSubmitting ? <><Spinner />{t('auth.saving')}</> : t('auth.savePassword')}
             </button>
           </form>
         </div>
       </div>
-    </div>
-  );
-}
-
-function StrengthBar({ password }) {
-  const score = [
-    password.length >= 8,
-    /[A-Z]/.test(password),
-    /[0-9]/.test(password),
-    /[^A-Za-z0-9]/.test(password)
-  ].filter(Boolean).length;
-
-  const labels = ['Faible', 'Correct', 'Bien', 'Fort'];
-  const colors = ['bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-green-500'];
-
-  return (
-    <div>
-      <div className="flex gap-1 mb-1">
-        {[0, 1, 2, 3].map(i => (
-          <div
-            key={i}
-            className={`h-1 flex-1 rounded-full transition-colors ${i < score ? colors[score - 1] : 'bg-charcoal/10'}`}
-          />
-        ))}
-      </div>
-      <p className="text-xs text-charcoal/50">{score > 0 ? labels[score - 1] : ''}</p>
     </div>
   );
 }

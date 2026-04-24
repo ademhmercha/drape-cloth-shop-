@@ -1,10 +1,14 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-const PHONE = import.meta.env.VITE_WHATSAPP_NUMBER || '21650733444';
+const PHONE = import.meta.env.VITE_WHATSAPP_NUMBER;
 const MESSAGE = encodeURIComponent('Bonjour, je suis intéressé(e) par vos produits DRAPE 👗');
 
 export default function WhatsAppFloat() {
+  const { t } = useTranslation();
   const [hovered, setHovered] = useState(false);
+
+  if (!PHONE) return null;
 
   return (
     <a
@@ -16,14 +20,11 @@ export default function WhatsAppFloat() {
       className="fixed bottom-24 lg:bottom-8 right-5 z-40 flex items-center gap-3 group"
       aria-label="Nous contacter sur WhatsApp"
     >
-      {/* Tooltip */}
       <span className={`bg-charcoal dark:bg-cream text-cream dark:text-charcoal text-xs tracking-wider px-3 py-2 whitespace-nowrap transition-all duration-300 ${
         hovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 pointer-events-none'
       }`}>
-        Nous contacter
+        {t('whatsapp.contactUs')}
       </span>
-
-      {/* Button */}
       <div className="w-14 h-14 bg-[#25D366] flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300">
         <WhatsAppIcon />
       </div>
