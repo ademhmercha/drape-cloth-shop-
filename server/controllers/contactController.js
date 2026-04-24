@@ -1,6 +1,10 @@
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend = null;
+const getResend = () => {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY || 'placeholder');
+  return _resend;
+};
 
 // POST /api/contact
 exports.sendContact = async (req, res, next) => {
@@ -10,7 +14,7 @@ exports.sendContact = async (req, res, next) => {
       return res.status(400).json({ message: 'Nom, email et message requis' });
     }
 
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'DRAPE Contact <onboarding@resend.dev>',
       to: process.env.EMAIL_USER || process.env.ADMIN_EMAIL || 'admin@drape.tn',
       replyTo: email,
