@@ -66,7 +66,7 @@ const products = [
   {
     name: 'Robe Longue Satin Noir', description: 'Robe longue en satin fluide avec fente latérale. Pour les soirées mémorables.',
     price: 480, category: 'women', sizes: sizes.women(3,6,8,4),
-    colors: [C.noir, C.rouge], images: [img('1566479179817-1e5e2b68a75b')], brand: 'DRAPE', tags: ['robe','satin','soirée','long'], isFeatured: true
+    colors: [C.noir, C.rouge], images: [img('1515886657613-9f3515b0c78f')], brand: 'DRAPE', tags: ['robe','satin','soirée','long'], isFeatured: true
   },
   {
     name: 'Chemisier Lin Drapé', description: 'Chemisier en lin naturel avec col noué. Légèreté et sophistication pour les journées chaudes.',
@@ -168,7 +168,7 @@ const products = [
   {
     name: 'Blazer Charbon Structuré', description: 'Un blazer tailleur en laine mélangée avec une silhouette épurée. Parfait pour les occasions formelles comme décontractées.',
     price: 289, category: 'men', sizes: sizes.men(8,12,6,4),
-    colors: [C.anthracite, C.gris], images: [img('1594938298603-c8148c4bbc7e')], brand: 'DRAPE', tags: ['blazer','formel','laine','structuré'], isFeatured: true
+    colors: [C.anthracite, C.gris], images: [img('1617127365659-c47fa864d8bc')], brand: 'DRAPE', tags: ['blazer','formel','laine','structuré'], isFeatured: true
   },
   {
     name: 'Pantalon Tailleur Anthracite', description: 'Pantalon à plis à taille haute en tissu technique léger. Coupe ample et fluide.',
@@ -218,7 +218,7 @@ const products = [
   {
     name: 'Veste Bomber Cuir Noir', description: 'Bomber en cuir grainé avec doublure satin. La pièce rock de la collection.',
     price: 495, category: 'men', sizes: sizes.men(5,8,7,5),
-    colors: [C.noir, C.anthracite], images: [img('1594938298603-c8148c4bbc7e')], brand: 'DRAPE', tags: ['bomber','cuir','rock','veste'], isFeatured: false
+    colors: [C.noir, C.anthracite], images: [img('1617127365659-c47fa864d8bc')], brand: 'DRAPE', tags: ['bomber','cuir','rock','veste'], isFeatured: false
   },
   {
     name: 'Pull Col V Cachemire', description: 'Pull col V en cachemire grade A. Douceur absolue pour l\'hiver.',
@@ -283,7 +283,7 @@ const products = [
   {
     name: 'Parka Techno Kaki', description: 'Parka imperméable en tissu technique avec hood amovible. Fonctionnel et élégant.',
     price: 445, category: 'men', sizes: sizes.men(5,9,8,5),
-    colors: [C.kaki, C.noir], images: [img('1594938298603-c8148c4bbc7e')], brand: 'DRAPE', tags: ['parka','imperméable','technique'], isFeatured: false
+    colors: [C.kaki, C.noir], images: [img('1617127365659-c47fa864d8bc')], brand: 'DRAPE', tags: ['parka','imperméable','technique'], isFeatured: false
   },
   {
     name: 'Ceinture Cuir Tressé', description: 'Ceinture en cuir tressé avec boucle laiton brossé. Détail artisanal.',
