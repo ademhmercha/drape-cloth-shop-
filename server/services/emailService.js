@@ -1,11 +1,19 @@
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy init — don't crash at startup if key is missing
+let _resend = null;
+const getResend = () => {
+  if (!_resend) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY manquant dans les variables d\'environnement');
+    }
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+};
 
 exports.sendPasswordResetEmail = async (to, name, resetUrl) => {
-  if (!process.env.RESEND_API_KEY) {
-    throw new Error('RESEND_API_KEY manquant dans les variables d\'environnement');
-  }
+  const resend = getResend();
 
   const { error } = await resend.emails.send({
     from: 'DRAPE <onboarding@resend.dev>',
