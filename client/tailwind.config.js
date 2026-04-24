@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -8,11 +9,12 @@ export default {
         charcoal: '#1C1C1C',
         gold: '#C9A84C',
         'gold-light': '#E8D07A',
-        'charcoal-soft': '#3D3D3D'
+        'charcoal-soft': '#2A2A2A'
       },
       fontFamily: {
         display: ['"Playfair Display"', 'Georgia', 'serif'],
-        body: ['"DM Sans"', 'system-ui', 'sans-serif']
+        body: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        arabic: ['"Cairo"', '"Noto Sans Arabic"', 'sans-serif']
       },
       animation: {
         'fade-up': 'fadeUp 0.6s ease forwards',

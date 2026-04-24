@@ -182,6 +182,44 @@ exports.updateOrderStatus = async (req, res, next) => {
   }
 };
 
+// GET /api/orders/revenue-series?days=30 (admin)
+exports.getRevenueSeries = async (req, res, next) => {
+  try {
+    const days = Math.min(parseInt(req.query.days) || 30, 90);
+    const from = new Date();
+    from.setDate(from.getDate() - days + 1);
+    from.setHours(0, 0, 0, 0);
+
+    const raw = await Order.aggregate([
+      {
+        $match: {
+          status: { $in: ['confirmed', 'shipped', 'delivered'] },
+          createdAt: { $gte: from }
+        }
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          revenue: { $sum: '$totalAmount' },
+          orders: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // Fill missing days with 0
+    const result = Array.from({ length: days }, (_, i) => {
+      const d = new Date(from);
+      d.setDate(d.getDate() + i);
+      const key = d.toISOString().split('T')[0];
+      const found = raw.find(r => r._id === key);
+      return { date: key, revenue: found ? Math.round(found.revenue) : 0, orders: found?.orders || 0 };
+    });
+
+    res.json(result);
+  } catch (err) { next(err); }
+};
+
 // GET /api/orders/stats (admin)
 exports.getStats = async (req, res, next) => {
   try {

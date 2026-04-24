@@ -7,6 +7,7 @@ import MobileNav from './components/MobileNav';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import PageLoader from './components/PageLoader';
+import WhatsAppFloat from './components/WhatsAppFloat';
 
 // Lazy-load all route-level components
 const Home = lazy(() => import('./pages/Home'));
@@ -20,6 +21,8 @@ const Register = lazy(() => import('./pages/Register'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
 
 // Admin pages
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
@@ -71,6 +74,8 @@ export default function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
 
             {/* Protected client routes */}
             <Route element={<ProtectedRoute />}>
@@ -98,6 +103,7 @@ export default function App() {
 
       {!isAdmin && <Footer />}
       {!isAdmin && <MobileNav />}
+      {!isAdmin && <WhatsAppFloat />}
     </div>
   );
 }
