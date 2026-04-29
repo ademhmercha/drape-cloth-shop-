@@ -391,7 +391,7 @@ function OrderModal({ order, onClose }) {
               {new Date(order.createdAt).toLocaleDateString('fr-TN', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
           </div>
-          <button onClick={onClose} className="text-2xl text-charcoal/50 hover:text-charcoal">✕</button>
+          <button onClick={onClose} className="text-2xl text-charcoal/50 hover:text-charcoal">×</button>
         </div>
 
         <div className="p-6 space-y-6">

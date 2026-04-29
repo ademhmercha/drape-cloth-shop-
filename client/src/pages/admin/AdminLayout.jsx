@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCart } from '../../contexts/CartContext';
 
 // Icons must be defined before NAV_ITEMS (const arrows are not hoisted)
 const GridIcon = () => (
@@ -58,9 +59,11 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { pathname } = useLocation();
   const { user, logout } = useAuth();
+  const { clearCart } = useCart();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
+    clearCart();
     await logout();
     navigate('/');
   };

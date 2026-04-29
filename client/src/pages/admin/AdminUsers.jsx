@@ -93,7 +93,7 @@ export default function AdminUsers() {
                 <h3 className="font-display text-xl">{selectedUser.name}</h3>
                 <p className="text-sm text-gray-500">{selectedUser.email}</p>
               </div>
-              <button onClick={() => setSelectedUser(null)} className="text-2xl text-gray-400">✕</button>
+              <button onClick={() => setSelectedUser(null)} className="text-2xl text-gray-400">×</button>
             </div>
 
             <div className="p-5 space-y-5">

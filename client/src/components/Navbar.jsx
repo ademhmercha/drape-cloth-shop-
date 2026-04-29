@@ -25,7 +25,12 @@ export default function Navbar() {
   const debouncedQuery = useDebounce(query, 300);
 
   const { user, logout } = useAuth();
-  const { count, setIsOpen } = useCart();
+  const { count, setIsOpen, clearCart } = useCart();
+
+  const handleLogout = async () => {
+    clearCart();
+    await logout();
+  };
   const { dark, toggle: toggleTheme } = useTheme();
   const { lang, toggle: toggleLang } = useLang();
   const { t } = useTranslation();
@@ -145,7 +150,7 @@ export default function Navbar() {
                       </div>
                     )}
                   </div>
-                  <button type="button" onClick={() => { setSearchOpen(false); setQuery(''); }} className="ml-2 text-charcoal/50 dark:text-cream/50 hover:text-charcoal dark:hover:text-cream text-lg leading-none">✕</button>
+                  <button type="button" onClick={() => { setSearchOpen(false); setQuery(''); }} className="ml-2 text-charcoal/50 dark:text-cream/50 hover:text-charcoal dark:hover:text-cream text-lg leading-none">×</button>
                 </form>
               ) : (
                 <button onClick={() => setSearchOpen(true)} className="p-1 text-charcoal dark:text-cream hover:text-gold transition-colors" aria-label="Rechercher">
@@ -174,7 +179,7 @@ export default function Navbar() {
                   <Avatar user={user} size={26} />
                   {t('nav.myAccount')}
                 </Link>
-                <button onClick={logout} className="text-xs tracking-widest uppercase font-medium text-charcoal/50 dark:text-cream/50 hover:text-gold transition-colors">
+                <button onClick={handleLogout} className="text-xs tracking-widest uppercase font-medium text-charcoal/50 dark:text-cream/50 hover:text-gold transition-colors">
                   {t('nav.logout')}
                 </button>
               </div>
@@ -202,7 +207,7 @@ export default function Navbar() {
         <div className="fixed inset-0 z-50 flex lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMenuOpen(false)} />
           <nav className="relative bg-cream dark:bg-charcoal w-72 h-full flex flex-col py-10 px-8">
-            <button onClick={() => setMenuOpen(false)} className="absolute top-5 right-5 text-2xl text-charcoal dark:text-cream">✕</button>
+            <button onClick={() => setMenuOpen(false)} className="absolute top-5 right-5 text-2xl text-charcoal dark:text-cream">×</button>
             <Link to="/" className="font-display text-xl tracking-[0.25em] mb-10 text-charcoal dark:text-cream">DRAPE</Link>
             {[
               { label: t('nav.shop'), href: '/shop' },
@@ -233,7 +238,7 @@ export default function Navbar() {
                   <Link to="/dashboard" className="text-sm tracking-widest uppercase font-medium hover:text-gold text-charcoal dark:text-cream flex items-center gap-2">
                     <Avatar user={user} size={24} />{t('nav.myAccount')}
                   </Link>
-                  <button onClick={logout} className="text-sm tracking-widest uppercase font-medium text-left hover:text-gold text-charcoal dark:text-cream">
+                  <button onClick={handleLogout} className="text-sm tracking-widest uppercase font-medium text-left hover:text-gold text-charcoal dark:text-cream">
                     {t('nav.logout')}
                   </button>
                 </>

@@ -24,7 +24,7 @@ export default function CartDrawer() {
           <h2 className="font-display text-xl dark:text-cream">{t('cart.title')}</h2>
           <button onClick={() => setIsOpen(false)}
             className="text-charcoal dark:text-cream hover:text-gold transition-colors text-2xl leading-none" aria-label="Fermer">
-            ✕
+            ×
           </button>
         </div>
 

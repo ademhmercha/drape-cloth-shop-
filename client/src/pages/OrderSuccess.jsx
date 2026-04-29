@@ -36,14 +36,14 @@ export default function OrderSuccess() {
 
         <div className="bg-charcoal/5 dark:bg-cream/5 p-6 text-left space-y-3 mb-10 text-sm">
           <div className="flex items-start gap-3">
-            <span className="text-xl">📦</span>
+            <BoxIcon />
             <div>
               <p className="font-medium dark:text-cream">{t('success.deliveryTitle')}</p>
               <p className="text-charcoal/50 dark:text-cream/50 text-xs">{t('success.deliveryDesc')}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <span className="text-xl">💵</span>
+            <BanknoteIcon />
             <div>
               <p className="font-medium dark:text-cream">{t('success.paymentTitle')}</p>
               <p className="text-charcoal/50 dark:text-cream/50 text-xs">
@@ -57,7 +57,7 @@ export default function OrderSuccess() {
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <span className="text-xl">📱</span>
+            <PhoneIcon />
             <div>
               <p className="font-medium dark:text-cream">{t('success.whatsappTitle')}</p>
               <p className="text-charcoal/50 dark:text-cream/50 text-xs">{t('success.whatsappDesc')}</p>
@@ -75,6 +75,35 @@ export default function OrderSuccess() {
         @keyframes drawCircle { to { stroke-dashoffset: 0; } }
         @keyframes drawCheck { to { stroke-dashoffset: 0; } }
       `}</style>
+
     </div>
+  );
+}
+
+function BoxIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="flex-shrink-0 mt-0.5 text-charcoal/50 dark:text-cream/50">
+      <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" />
+    </svg>
+  );
+}
+
+function BanknoteIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="flex-shrink-0 mt-0.5 text-charcoal/50 dark:text-cream/50">
+      <rect x="2" y="6" width="20" height="12" rx="2" />
+      <circle cx="12" cy="12" r="2" />
+      <path d="M6 12h.01M18 12h.01" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="flex-shrink-0 mt-0.5 text-charcoal/50 dark:text-cream/50">
+      <rect x="5" y="2" width="14" height="20" rx="2" />
+      <line x1="12" y1="18" x2="12" y2="18" strokeWidth="2" strokeLinecap="round" />
+    </svg>
   );
 }

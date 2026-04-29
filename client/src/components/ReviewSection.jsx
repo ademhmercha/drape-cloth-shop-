@@ -170,7 +170,7 @@ export default function ReviewSection({ productId }) {
                       onClick={() => handleDelete(r._id)}
                       className="text-xs text-charcoal/30 hover:text-red-500 dark:text-cream/30 transition-colors"
                     >
-                      ✕
+                      ×
                     </button>
                   )}
                 </div>

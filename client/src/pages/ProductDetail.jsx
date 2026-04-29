@@ -216,7 +216,7 @@ export default function ProductDetail() {
                   {selectedSizeData && (
                     <p className="text-xs text-charcoal/50 dark:text-cream/50 mt-2">
                       {stockAvailable <= 5 && stockAvailable > 0
-                        ? `⚠️ Plus que ${stockAvailable} ${t('product.inStock')}`
+                        ? `Plus que ${stockAvailable} ${t('product.inStock')}`
                         : `${stockAvailable} ${t('product.inStock')}`}
                     </p>
                   )}
@@ -250,7 +250,6 @@ export default function ProductDetail() {
               </div>
 
               <div className="flex items-center gap-2 justify-center text-xs text-charcoal/50 dark:text-cream/50 mb-8">
-                <span>💵</span>
                 <span>Paiement en espèces à la livraison uniquement</span>
               </div>
 
@@ -271,9 +270,9 @@ export default function ProductDetail() {
                   {activeTab === 1 && <SizeTable />}
                   {activeTab === 2 && (
                     <div className="space-y-4">
-                      <p>📦 <strong>Livraison</strong> — 3 à 5 jours ouvrables dans toute la Tunisie.</p>
-                      <p>💵 <strong>Paiement</strong> — En espèces à la livraison uniquement.</p>
-                      <p>↩️ <strong>Retours</strong> — Articles non portés acceptés dans les 14 jours.</p>
+                      <p><strong>Livraison</strong> — 3 à 5 jours ouvrables dans toute la Tunisie.</p>
+                      <p><strong>Paiement</strong> — En espèces à la livraison uniquement.</p>
+                      <p><strong>Retours</strong> — Articles non portés acceptés dans les 14 jours.</p>
                     </div>
                   )}
                 </div>
@@ -310,7 +309,7 @@ export default function ProductDetail() {
         {/* Image zoom lightbox */}
         {zoomOpen && (
           <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center" onClick={() => setZoomOpen(false)}>
-            <button className="absolute top-5 right-5 text-white/70 hover:text-white text-3xl leading-none z-10" onClick={() => setZoomOpen(false)}>✕</button>
+            <button className="absolute top-5 right-5 text-white/70 hover:text-white text-3xl leading-none z-10" onClick={() => setZoomOpen(false)}>×</button>
             <img src={product.images[mainImage]} alt={product.name} className="max-h-[90vh] max-w-[90vw] object-contain" onClick={e => e.stopPropagation()} />
             {product.images.length > 1 && (
               <>
@@ -334,7 +333,7 @@ export default function ProductDetail() {
             <div className="relative bg-cream dark:bg-charcoal-soft max-w-lg w-full shadow-2xl">
               <div className="flex items-center justify-between p-6 border-b border-charcoal/10 dark:border-cream/10">
                 <h3 className="font-display text-xl dark:text-cream">{t('product.sizeGuide')}</h3>
-                <button onClick={() => setSizeGuideOpen(false)} className="text-2xl text-charcoal/50 dark:text-cream/50 hover:text-charcoal dark:hover:text-cream leading-none">✕</button>
+                <button onClick={() => setSizeGuideOpen(false)} className="text-2xl text-charcoal/50 dark:text-cream/50 hover:text-charcoal dark:hover:text-cream leading-none">×</button>
               </div>
               <div className="p-6">
                 <p className="text-sm text-charcoal/60 dark:text-cream/60 mb-5">Toutes les mesures sont en centimètres.</p>

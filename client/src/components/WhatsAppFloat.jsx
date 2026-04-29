@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const PHONE = import.meta.env.VITE_WHATSAPP_NUMBER;
-const MESSAGE = encodeURIComponent('Bonjour, je suis intéressé(e) par vos produits DRAPE 👗');
+const MESSAGE = encodeURIComponent('Bonjour, je suis intéressé(e) par vos produits DRAPE.');
 
 export default function WhatsAppFloat() {
   const { t } = useTranslation();

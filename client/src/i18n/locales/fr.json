@@ -73,9 +73,9 @@
     "enlarge": "Agrandir",
     "sizeTableNote": "Toutes les mesures sont en centimètres.",
     "outOfStock": "Rupture de stock",
-    "shippingInfo": "📦 Livraison — 3 à 5 jours ouvrables dans toute la Tunisie.",
-    "paymentInfo": "💵 Paiement — En espèces à la livraison uniquement.",
-    "returnsInfo": "↩️ Retours — Articles non portés acceptés dans les 14 jours."
+    "shippingInfo": "Livraison — 3 à 5 jours ouvrables dans toute la Tunisie.",
+    "paymentInfo": "Paiement — En espèces à la livraison uniquement.",
+    "returnsInfo": "Retours — Articles non portés acceptés dans les 14 jours."
   },
   "reviews": {
     "title": "Avis clients",
@@ -300,7 +300,7 @@
     "delivery": "Livraison",
     "returns": "Retours",
     "rights": "© 2025 DRAPE. Tous droits réservés.",
-    "madeWith": "Fait avec ♥ en Tunisie"
+    "madeWith": "Fait en Tunisie"
   },
   "whatsapp": {
     "contactUs": "Nous contacter"

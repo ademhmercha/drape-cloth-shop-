@@ -105,7 +105,7 @@ export default function Checkout() {
                   i < step ? 'bg-gold border-gold text-white' :
                   i === step ? 'border-charcoal' : 'border-charcoal/20 text-charcoal/30'
                 }`}>
-                  {i < step ? '✓' : i + 1}
+                  {i < step ? <CheckIcon /> : i + 1}
                 </span>
                 <span className="hidden sm:inline">{s}</span>
               </div>
@@ -210,7 +210,6 @@ export default function Checkout() {
         {step === 2 && (
           <div className="text-center">
             <div className="bg-gold/10 border border-gold/30 p-8 mb-8">
-              <div className="text-4xl mb-4">💵</div>
               <h2 className="font-display text-2xl mb-3">Paiement à la livraison</h2>
               <p className="text-charcoal/60 text-sm leading-relaxed max-w-sm mx-auto">
                 Votre commande sera livrée sous 3–5 jours. Préparez <strong>{total.toFixed(2)} DT</strong> en espèces pour le livreur.
@@ -275,6 +274,14 @@ function Field({ label, error, children }) {
       {children}
       {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
     </div>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+      <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 

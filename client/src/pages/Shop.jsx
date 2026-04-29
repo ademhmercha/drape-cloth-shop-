@@ -139,7 +139,7 @@ export default function Shop() {
                 onClick={() => setParam(f.key, '')}
                 className="flex items-center gap-1.5 bg-charcoal text-cream text-xs px-3 py-1.5 tracking-wider hover:bg-gold transition-colors"
               >
-                {f.label} <span>✕</span>
+                {f.label} <span>×</span>
               </button>
             ))}
             <button
@@ -224,7 +224,7 @@ export default function Shop() {
           <div className="relative ml-auto bg-cream w-80 h-full overflow-y-auto p-6">
             <div className="flex items-center justify-between mb-8">
               <h3 className="font-display text-xl">Filtres</h3>
-              <button onClick={() => setFiltersOpen(false)} className="text-2xl">✕</button>
+              <button onClick={() => setFiltersOpen(false)} className="text-2xl">×</button>
             </div>
             <FiltersPanel
               category={category} size={size} color={color}

@@ -153,7 +153,7 @@ function OrderPanel({ order, onClose, onUpdate }) {
     <div className="w-full lg:w-96 bg-white border border-gray-100 flex-shrink-0 overflow-y-auto max-h-[calc(100vh-180px)]">
       <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex items-center justify-between">
         <h3 className="font-medium">#{order._id.slice(-6).toUpperCase()}</h3>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-700">✕</button>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-700">×</button>
       </div>
 
       <div className="p-4 space-y-5">
@@ -206,7 +206,7 @@ function OrderPanel({ order, onClose, onUpdate }) {
             rel="noopener noreferrer"
             className="text-sm text-green-600 hover:underline flex items-center gap-1"
           >
-            📱 {order.user?.phone}
+            {order.user?.phone}
           </a>
           <p className="text-xs text-gray-400 mt-1">
             {order.shippingAddress?.street}, {order.shippingAddress?.city}

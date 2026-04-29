@@ -73,13 +73,12 @@ export default function AdminDashboard() {
         {loading ? (
           Array(4).fill(0).map((_, i) => <div key={i} className="h-28 skeleton rounded-sm" />)
         ) : [
-          { label: 'Commandes totales', value: stats?.totalOrders || 0, icon: '📦', trend: null },
-          { label: 'Revenus totaux', value: `${(stats?.totalRevenue || 0).toFixed(0)} DT`, icon: '💰' },
-          { label: 'En attente', value: stats?.pendingOrders || 0, icon: '⏳', highlight: true },
-          { label: 'Produits actifs', value: stats?.activeProducts || 0, icon: '👗' }
+          { label: 'Commandes totales', value: stats?.totalOrders || 0 },
+          { label: 'Revenus totaux', value: `${(stats?.totalRevenue || 0).toFixed(0)} DT` },
+          { label: 'En attente', value: stats?.pendingOrders || 0, highlight: true },
+          { label: 'Produits actifs', value: stats?.activeProducts || 0 }
         ].map(card => (
           <div key={card.label} className={`bg-white p-5 border ${card.highlight && card.value > 0 ? 'border-gold/40 bg-gold/5' : 'border-gray-100'}`}>
-            <div className="text-2xl mb-2">{card.icon}</div>
             <p className="text-2xl font-display font-medium">{card.value}</p>
             <p className="text-xs text-gray-500 mt-1">{card.label}</p>
           </div>
@@ -209,7 +208,6 @@ export default function AdminDashboard() {
       {lowStock.length > 0 && (
         <div className="bg-white border border-orange-100">
           <div className="p-5 border-b border-orange-100 flex items-center gap-2">
-            <span className="text-orange-500">⚠️</span>
             <h2 className="font-medium">Alertes stock faible</h2>
             <span className="ml-auto text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-sm">{lowStock.length}</span>
           </div>

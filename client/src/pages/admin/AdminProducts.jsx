@@ -276,7 +276,7 @@ function ProductForm({ product, onClose, onSaved }) {
                       }}
                       className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center"
                     >
-                      ✕
+                      ×
                     </button>
                   </div>
                 ))}
@@ -301,7 +301,7 @@ function ProductForm({ product, onClose, onSaved }) {
                     onChange={e => updateSize(i, 'stock', Number(e.target.value))}
                     placeholder="Stock" className="admin-input w-24" />
                   <button type="button" onClick={() => removeSize(i)}
-                    className="text-red-400 hover:text-red-600 px-1">✕</button>
+                    className="text-red-400 hover:text-red-600 px-1">×</button>
                 </div>
               ))}
             </div>
@@ -322,7 +322,7 @@ function ProductForm({ product, onClose, onSaved }) {
                   <input value={c.name} onChange={e => updateColor(i, 'name', e.target.value)}
                     placeholder="Nom (ex: Noir)" className="admin-input flex-1" />
                   <button type="button" onClick={() => removeColor(i)}
-                    className="text-red-400 hover:text-red-600 px-1">✕</button>
+                    className="text-red-400 hover:text-red-600 px-1">×</button>
                 </div>
               ))}
             </div>

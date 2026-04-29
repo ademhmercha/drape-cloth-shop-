@@ -33,9 +33,9 @@ export default function Contact() {
   };
 
   const contacts = [
-    WHATSAPP && { icon: '📱', label: t('contact.whatsapp'), value: formatPhone(WHATSAPP), href: `https://wa.me/${WHATSAPP}` },
-    CONTACT_EMAIL && { icon: '📧', label: t('contact.email'), value: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
-    STORE_ADDRESS && { icon: '📍', label: t('contact.address'), value: STORE_ADDRESS }
+    WHATSAPP && { Icon: PhoneIcon, label: t('contact.whatsapp'), value: formatPhone(WHATSAPP), href: `https://wa.me/${WHATSAPP}` },
+    CONTACT_EMAIL && { Icon: MailIcon, label: t('contact.email'), value: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
+    STORE_ADDRESS && { Icon: MapPinIcon, label: t('contact.address'), value: STORE_ADDRESS }
   ].filter(Boolean);
 
   return (
@@ -54,7 +54,7 @@ export default function Contact() {
                 <div className="space-y-6">
                   {contacts.map(item => (
                     <div key={item.label} className="flex items-start gap-4">
-                      <span className="text-2xl">{item.icon}</span>
+                      <item.Icon />
                       <div>
                         <p className="text-xs tracking-widest uppercase text-charcoal/40 dark:text-cream/40 mb-0.5">{item.label}</p>
                         {item.href
@@ -130,5 +130,26 @@ export default function Contact() {
 const Spinner = () => (
   <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" strokeLinecap="round" />
+  </svg>
+);
+
+const PhoneIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="flex-shrink-0 mt-1 text-charcoal/40 dark:text-cream/40">
+    <rect x="5" y="2" width="14" height="20" rx="2" />
+    <line x1="12" y1="18" x2="12" y2="18" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+const MailIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="flex-shrink-0 mt-1 text-charcoal/40 dark:text-cream/40">
+    <rect x="2" y="4" width="20" height="16" rx="2" />
+    <path d="M2 8l10 6 10-6" />
+  </svg>
+);
+
+const MapPinIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="flex-shrink-0 mt-1 text-charcoal/40 dark:text-cream/40">
+    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+    <circle cx="12" cy="9" r="2.5" />
   </svg>
 );
